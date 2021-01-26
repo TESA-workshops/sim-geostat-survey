@@ -54,7 +54,7 @@ plot(mesh)
 
 fit <- sdmTMB(N ~ 0 + as.factor(year),
   data = dat,
-  family = sdmTMB::nbinom2(link = "log"), spde = mesh,
+  family = nbinom2(link = "log"), spde = mesh,
   include_spatial = FALSE, ar1_fields = TRUE, time = "year",
   silent = FALSE
 )
@@ -113,9 +113,16 @@ ggplot(pred$data, aes(x, y, fill = est)) +
 
 index <- get_index(pred)
 
-ggplot(index, aes(year, est)) +
-  geom_line() +
-  geom_ribbon(aes(ymin = lwr, ymax = upr), alpha = 0.4) +
-  labs(x = "Year", y = "Index")
+true_abund <- dplyr::filter(df_sim_sum, x > -110, x < 110) %>%
+  group_by(year) %>%
+  summarise(N = sum(N)) %>%
+  mutate(type = "True")
+both <- index %>% mutate(type = "Estimated", N = est) %>%
+  bind_rows(true_abund)
 
-SimSurvey::plot_trend(survey)
+ggplot(both, aes(year, N, group = type)) +
+  geom_line(aes(colour = type, lty = type)) +
+  geom_ribbon(aes(ymin = lwr, ymax = upr, fill = type), alpha = 0.3) +
+  labs(x = "Year", y = "Abundance", colour = "Type", fill = "Type", lty = "Type") +
+  scale_color_brewer(palette = "Dark2") +
+  scale_fill_brewer(palette = "Dark2")
