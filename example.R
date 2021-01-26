@@ -100,24 +100,14 @@ ggplot(both, aes(x, y, fill = log(N))) +
   facet_grid(type ~ year) +
   scale_fill_viridis_c()
 
-# This just looks weird:
-ggplot(pred$data, aes(x, y, fill = est)) +
-  geom_tile() +
-  facet_wrap(~year) +
-  scale_fill_viridis_c() +
-  geom_point(aes(x, y, size = log(N)),
-    inherit.aes = FALSE, pch = 21, alpha = 0.5,
-    data = dplyr::filter(df_sim_sum, N > 0, x > -110, x < 110)
-  ) +
-  scale_size_area()
-
 index <- get_index(pred)
 
 true_abund <- dplyr::filter(df_sim_sum, x > -110, x < 110) %>%
   group_by(year) %>%
   summarise(N = sum(N)) %>%
   mutate(type = "True")
-both <- index %>% mutate(type = "Estimated", N = est) %>%
+both <- index %>%
+  mutate(type = "Estimated", N = est) %>%
   bind_rows(true_abund)
 
 ggplot(both, aes(year, N, group = type)) +
