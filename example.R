@@ -42,24 +42,12 @@ ggplot(df_sum, aes(x, y, fill = depth)) +
   scale_fill_viridis_c(option = "C")
 
 unique(df_sum$year)
-max(df_sum$N)
-min(df_sum$N)
+range(df_sum$N)
 range(df_sum$x)
 range(df_sum$y)
 nrow(df_sum)
 
 dat <- df_sum
-# dat <- dplyr::filter(df_sum, N > 10) %>%
-  # dat <- mutate(df_sum, N = if_else(N > 10, N, 0)) %>% # For Tweedie?
-  # mutate(N1000 = N / 1000)
-
-# ggplot(dat, aes(x, y, fill = log(N1000))) +
-#   geom_tile() +
-#   facet_wrap(~year) +
-#   scale_fill_viridis_c()
-
-# range(dat$N1000)
-
 mesh <- sdmTMB::make_mesh(dat, xy_cols = c("x", "y"), cutoff = 20)
 mesh$spde$mesh$n
 plot(mesh)
