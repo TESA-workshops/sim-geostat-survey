@@ -61,6 +61,13 @@ fit <- sdmTMB(N ~ 0 + as.factor(year),
 print(fit)
 
 dat$resid <- residuals(fit)
+
+ggplot(dat, aes(x, y, colour = resid, size = abs(resid))) +
+  geom_point() +
+  facet_wrap(~year) +
+  scale_colour_gradient2() +
+  scale_size_area(max_size = 2)
+
 hist(dat$resid)
 qqnorm(dat$resid)
 qqline(dat$resid)
@@ -81,14 +88,16 @@ ggplot(pred$data, aes(x, y, fill = est)) +
   scale_fill_viridis_c()
 
 true <- dplyr::filter(df_sim_sum, N > 0, x > -110, x < 110) %>%
-  select(x, y, year, N) %>% mutate(type = "True")
+  select(x, y, year, N) %>%
+  mutate(type = "True")
 fitted <- pred$data %>%
-  select(x, y, year, N = est) %>% mutate(type = "Predicted") %>%
+  select(x, y, year, N = est) %>%
+  mutate(type = "Predicted") %>%
   mutate(N = exp(N))
 both <- bind_rows(true, fitted)
 ggplot(both, aes(x, y, fill = log(N))) +
   geom_tile() +
-  facet_grid(type~year) +
+  facet_grid(type ~ year) +
   scale_fill_viridis_c()
 
 # This just looks weird:
