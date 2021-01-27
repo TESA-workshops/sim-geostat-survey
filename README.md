@@ -1,4 +1,4 @@
-# Simulation testing survey geostatistical index standardization
+## Simulation testing survey geostatistical index standardization
 
 Files:
 - `example.Rmd`: a walk through of a basic example
