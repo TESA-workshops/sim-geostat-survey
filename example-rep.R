@@ -61,4 +61,4 @@ result_scaled %>%
   labs(x = "Year", y = "Abundance", colour = "Type", fill = "Type", lty = "Type") +
   scale_color_manual(values = c("Estimated" = "grey30", "True" = "red")) +
   scale_fill_manual(values = c("Estimated" = "grey30", "True" = "red")) +
-  facet_wrap(~iter, ncol = 4)
+  facet_wrap(~iter, ncol = 4, scales = "free_y")
