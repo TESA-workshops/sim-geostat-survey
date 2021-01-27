@@ -62,3 +62,16 @@ result_scaled %>%
   scale_color_manual(values = c("Estimated" = "grey30", "True" = "red")) +
   scale_fill_manual(values = c("Estimated" = "grey30", "True" = "red")) +
   facet_wrap(~iter, ncol = 4, scales = "free_y")
+
+summary_stats <- result_scaled %>%
+  group_by(year, iter) %>%
+  summarise(
+    est_lwr = lwr_scaled[type == "Estimated"],
+    est_upr = upr_scaled[type == "Estimated"],
+    est = N_scaled[type == "Estimated"],
+    true = N_scaled[type == "True"], .groups = "drop") %>%
+  mutate(covered = est_lwr < true & est_upr > true)
+mean(summary_stats$covered)
+
+ggplot(summary_stats, aes(log(true), log(est))) + geom_point() +
+  coord_fixed() + geom_abline(intercept = 0, slope = 1)
