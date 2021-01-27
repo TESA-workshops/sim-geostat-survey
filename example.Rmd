@@ -1,8 +1,16 @@
+---
+author: ""
+title: ""
+---
+
+```{r, warning=FALSE, message=FALSE}
 library(dplyr)
 library(ggplot2)
 library(SimSurvey)
 library(sdmTMB)
+```
 
+```{r}
 set.seed(2849)
 sim <- SimSurvey::sim_abundance(ages = seq(1, 10), years = seq(1, 10)) %>%
   SimSurvey::sim_distribution(
@@ -12,48 +20,76 @@ sim <- SimSurvey::sim_abundance(ages = seq(1, 10), years = seq(1, 10)) %>%
   )
 xy_sim <- as_tibble(sim$grid_xy)
 df_sim <- as_tibble(sim$sp_N)
-df_sim <- left_join(df_sim, xy)
-df_sim_sum <- group_by(df_sim, year, x, y, depth, cell) %>%
-  summarise(N = sum(N), .groups = "drop")
+df_sim <- left_join(df_sim, xy_sim, by = "cell")
+```
 
+```{r}
 survey <- SimSurvey::sim_survey(sim, n_sims = 1)
-plot(colSums(survey$I), type = "o")
-xy <- tibble::as_tibble(survey$grid_xy)
-df <- tibble::as_tibble(survey$setdet) %>% select(x, y, set, year, N = n, tow_area)
-df <- left_join(df, xy)
+```
 
-ggplot(df, aes(x, y, colour = log(N + 1), size = N)) +
+```{r}
+xy <- tibble::as_tibble(survey$grid_xy)
+dat <- tibble::as_tibble(survey$setdet) %>% select(x, y, set, year, N = n, tow_area)
+dat <- left_join(dat, xy, by = c("x", "y"))
+```
+
+```{r}
+ggplot(dat, aes(x, y, colour = log(N + 1), size = N)) +
   geom_point() +
   facet_wrap(vars(year)) +
   scale_colour_viridis_c() +
   scale_size_area(max_size = 4)
+```
 
-ggplot(df_sim_sum, aes(x, y, fill = log(N + 1))) +
+```{r}
+df_sim %>% 
+  group_by(x, y, year, cell) %>% 
+  summarise(N = sum(N), .groups = "drop") %>% 
+  ggplot(aes(x, y, fill = log(N + 1))) +
   geom_tile() +
   facet_wrap(~year) +
   scale_fill_viridis_c()
+```
 
-unique(df$year)
-range(df$N)
-range(df$x)
-range(df$y)
-nrow(df)
+```{r}
+glimpse(dat)
+unique(dat$year)
+range(dat$y)
+range(dat$x)
+nrow(dat)
+```
 
-dat <- df
+```{r}
 mesh <- sdmTMB::make_mesh(dat, xy_cols = c("x", "y"), cutoff = 15)
-mesh$spde$mesh$n
-plot(mesh)
-dat$offset <- log(dat$tow_area)
+```
 
+```{r}
+mesh$mesh$n
+```
+
+```{r}
+plot(mesh)
+```
+
+```{r}
+dat$offset <- log(dat$tow_area)
+```
+
+```{r, message=FALSE, warning=FALSE, results='hide'}
 fit <- sdmTMB(N ~ 0 + as.factor(year) + offset,
   data = dat,
   family = nbinom2(link = "log"), spde = mesh,
-  include_spatial = FALSE, ar1_fields = TRUE,
+  include_spatial = TRUE, ar1_fields = FALSE,
   time = "year",
   silent = FALSE
 )
-print(fit)
+```
 
+```{r}
+print(fit)
+```
+
+```{r}
 dat$resid <- residuals(fit)
 
 ggplot(dat, aes(x, y, colour = resid, size = abs(resid))) +
@@ -61,23 +97,34 @@ ggplot(dat, aes(x, y, colour = resid, size = abs(resid))) +
   facet_wrap(~year) +
   scale_colour_gradient2() +
   scale_size_area(max_size = 2)
+```
 
-# hist(dat$resid)
-# qqnorm(dat$resid)
-# qqline(dat$resid)
+```{r}
+hist(dat$resid)
+qqnorm(dat$resid)
+qqline(dat$resid)
+```
 
-grid_dat <- tidyr::expand_grid(x = sort(unique(df_sim_sum$x)), y = sort(unique(df_sim_sum$y)))
+```{r}
+grid_dat <- tidyr::expand_grid(x = sort(unique(df_sim$x)), y = sort(unique(df_sim$y)))
 grid_dat <- purrr::map_dfr(sort(unique(dat$year)), ~ bind_cols(grid_dat, year = .))
 grid_dat$offset <- mean(dat$offset)
-pred <- predict(fit, newdata = grid_dat, return_tmb_object = TRUE)
+```
 
-true <- df_sim_sum %>%
+```{r}
+pred <- predict(fit, newdata = grid_dat, return_tmb_object = TRUE)
+```
+
+```{r}
+true <- df_sim %>% 
+  group_by(x, y, year, cell) %>% 
+  summarise(N = sum(N), .groups = "drop")  %>%
   select(x, y, year, N) %>%
   mutate(type = "True")
 fitted <- pred$data %>%
-  select(x, y, year, N = est) %>%
+  select(x, y, year, est) %>%
   mutate(type = "Predicted") %>%
-  mutate(N = exp(N))
+  mutate(N = exp(est))
 both <- bind_rows(true, fitted) %>%
   group_by(type) %>%
   mutate(N_scaled = N / exp(mean(log(N))))
@@ -85,10 +132,14 @@ ggplot(both, aes(x, y, fill = log(N_scaled))) +
   geom_tile() +
   facet_grid(type ~ year) +
   scale_fill_viridis_c(limits = quantile(log(both$N_scaled), probs = c(0.05, 1)))
+```
 
+```{r}
 index <- get_index(pred)
+```
 
-true_abund <- tibble(year = unique(df$year), N = as.numeric(colSums(survey$I))) %>%
+```{r}
+true_abund <- tibble(year = unique(df_sim$year), N = as.numeric(colSums(survey$I))) %>%
   mutate(type = "True")
 both <- index %>%
   mutate(type = "Estimated", N = est) %>%
@@ -96,10 +147,13 @@ both <- index %>%
   group_by(type) %>%
   mutate(geo_mean = exp(mean(log(N), na.rm = TRUE)),
     lwr_scaled = lwr / geo_mean, N_scaled = N / geo_mean, upr_scaled = upr / geo_mean)
+```
 
+```{r, warning=FALSE}
 ggplot(both, aes(year, N_scaled, group = type)) +
   geom_line(aes(colour = type, lty = type)) +
   geom_ribbon(aes(ymin = lwr_scaled, ymax = upr_scaled, fill = type), alpha = 0.3) +
   labs(x = "Year", y = "Abundance", colour = "Type", fill = "Type", lty = "Type") +
   scale_color_manual(values = c("Estimated" = "grey30", "True" = "red")) +
   scale_fill_manual(values = c("Estimated" = "grey30", "True" = "red"))
+```
