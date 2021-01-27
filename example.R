@@ -101,5 +101,5 @@ ggplot(both, aes(year, N_scaled, group = type)) +
   geom_line(aes(colour = type, lty = type)) +
   geom_ribbon(aes(ymin = lwr_scaled, ymax = upr_scaled, fill = type), alpha = 0.3) +
   labs(x = "Year", y = "Abundance", colour = "Type", fill = "Type", lty = "Type") +
-  scale_color_brewer(palette = "Dark2") +
-  scale_fill_brewer(palette = "Dark2")
+  scale_color_manual(values = c("Estimated" = "grey30", "True" = "red")) +
+  scale_fill_manual(values = c("Estimated" = "grey30", "True" = "red"))

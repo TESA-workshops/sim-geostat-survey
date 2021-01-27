@@ -5,7 +5,7 @@ library(sdmTMB)
 future::plan(future::multisession) # for the furrr package; or `plan(sequential)`
 
 sim_and_fit <- function(iter) {
-  set.seed(iter * 1029)
+  set.seed(iter * 283028)
   sim <- sim_abundance(ages = seq(1, 10), years = seq(1, 10)) %>%
     sim_distribution(
       grid = make_grid(res = c(10, 10), depth_range = c(10, 500)),
@@ -29,8 +29,7 @@ sim_and_fit <- function(iter) {
   fit <- sdmTMB(N ~ 0 + as.factor(year) + offset,
     data = dat,
     family = nbinom2(link = "log"), spde = mesh,
-    include_spatial = FALSE, ar1_fields = TRUE,
-    time = "year"
+    include_spatial = TRUE, time = "year"
   )
 
   pred <- predict(fit, newdata = grid_dat, return_tmb_object = TRUE)
@@ -43,19 +42,23 @@ sim_and_fit <- function(iter) {
     mutate(iter = iter)
 }
 
-result <- furrr::future_map_dfr(seq_len(8), sim_and_fit,
+result <- furrr::future_map_dfr(seq_len(16), sim_and_fit,
   .options = furrr::furrr_options(seed = TRUE))
+
+not_converged <- dplyr::filter(result, (bad_eig | max_gradient > 0.001) & type == "Estimated")
+stopifnot(nrow(not_converged) == 0L)
 
 result_scaled <- result %>%
   group_by(type, iter) %>%
   mutate(geo_mean = exp(mean(log(N), na.rm = TRUE)),
-    lwr_scaled = lwr / geo_mean, N_scaled = N / geo_mean, upr_scaled = upr / geo_mean)
+    lwr_scaled = lwr / geo_mean, N_scaled = N / geo_mean, upr_scaled = upr / geo_mean) %>%
+  ungroup()
 
 result_scaled %>%
   ggplot(aes(year, N_scaled, group = type)) +
   geom_line(aes(colour = type, lty = type)) +
   geom_ribbon(aes(ymin = lwr_scaled, ymax = upr_scaled, fill = type), alpha = 0.3) +
   labs(x = "Year", y = "Abundance", colour = "Type", fill = "Type", lty = "Type") +
-  scale_color_brewer(palette = "Dark2") +
-  scale_fill_brewer(palette = "Dark2") +
-  facet_wrap(~iter)
+  scale_color_manual(values = c("Estimated" = "grey30", "True" = "red")) +
+  scale_fill_manual(values = c("Estimated" = "grey30", "True" = "red")) +
+  facet_wrap(~iter, ncol = 4)
