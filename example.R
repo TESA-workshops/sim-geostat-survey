@@ -1,8 +1,7 @@
 library(dplyr)
 library(ggplot2)
-library(sdmTMB)
 library(SimSurvey)
-theme_set(theme_light())
+library(sdmTMB)
 
 set.seed(2849)
 sim <- SimSurvey::sim_abundance(ages = seq(1, 10), years = seq(1, 10)) %>%
@@ -11,8 +10,8 @@ sim <- SimSurvey::sim_abundance(ages = seq(1, 10), years = seq(1, 10)) %>%
     ays_covar = SimSurvey::sim_ays_covar(phi_age = 0.8, phi_year = 0.1),
     depth_par = SimSurvey::sim_parabola(mu = 200, sigma = 30)
   )
-xy_sim <- tibble::as_tibble(sim$grid_xy)
-df_sim <- tibble::as_tibble(sim$sp_N)
+xy_sim <- as_tibble(sim$grid_xy)
+df_sim <- as_tibble(sim$sp_N)
 df_sim <- left_join(df_sim, xy)
 df_sim_sum <- group_by(df_sim, year, x, y, depth, cell) %>%
   summarise(N = sum(N), .groups = "drop")
@@ -22,7 +21,6 @@ plot(colSums(survey$I), type = "o")
 xy <- tibble::as_tibble(survey$grid_xy)
 df <- tibble::as_tibble(survey$setdet) %>% select(x, y, set, year, N = n, tow_area)
 df <- left_join(df, xy)
-# df_sum <- dplyr::filter(df_sum, x > -110, x < 110)
 
 ggplot(df, aes(x, y, colour = log(N + 1), size = N)) +
   geom_point() +
@@ -30,7 +28,6 @@ ggplot(df, aes(x, y, colour = log(N + 1), size = N)) +
   scale_colour_viridis_c() +
   scale_size_area(max_size = 4)
 
-# SA: weird edge effects?
 ggplot(df_sim_sum, aes(x, y, fill = log(N + 1))) +
   geom_tile() +
   facet_wrap(~year) +
@@ -74,9 +71,7 @@ grid_dat <- purrr::map_dfr(sort(unique(dat$year)), ~ bind_cols(grid_dat, year = 
 grid_dat$offset <- mean(dat$offset)
 pred <- predict(fit, newdata = grid_dat, return_tmb_object = TRUE)
 
-# TODO: adjust this for catchability:
 true <- df_sim_sum %>%
-  # dplyr::filter(df_sim_sum, N > 0, x > -110, x < 110) %>%
   select(x, y, year, N) %>%
   mutate(type = "True")
 fitted <- pred$data %>%
