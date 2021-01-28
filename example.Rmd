@@ -89,6 +89,11 @@ fit <- sdmTMB(N ~ 0 + as.factor(year) + offset,
 print(fit)
 ```
 
+```{r} 
+tidy(fit, conf.int = TRUE)
+tidy(fit, conf.int = TRUE, effects = "ran_pars")
+```
+
 ```{r}
 dat$resid <- residuals(fit)
 
