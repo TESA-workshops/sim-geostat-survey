@@ -228,7 +228,22 @@ Assumptions are rarely perfect <br> (normal or abnormal?)
     - Plot various types of predictions with `predict()`, possibly with new data
     - Compare models with `AIC()` or `sdmTMB_cv()` or self-simulation test with `sdmTMB_sim()`
 
+## What is [sdmTMB](https://github.com/pbs-assess/sdmTMB)? {.smaller}
 
+**Modeling steps continued:**
+
+<ol start=4>
+<li> **Predict on a grid that represents the survey domain** - `predict()`
+<ul>
+<li> `predict(model, newdata = grid, return_tmb_object = TRUE)`
+</ul>
+
+<li> **Calculate the survey index** - `get_index()`
+<ul>
+<li> Use `get_index()` to sum the expected density or abundance across the grid and calculate standard errors
+</ul>
+</ol>
+    
 ## [SimSurvey](https://github.com/PaulRegular/SimSurvey) & [sdmTMB](https://github.com/pbs-assess/sdmTMB)
 
 - **Next steps:** 
@@ -238,7 +253,5 @@ Assumptions are rarely perfect <br> (normal or abnormal?)
 - Initial code examples can be found [here](https://github.com/TESA-workshops/sim-geostat-survey), where:
   - [`example.Rmd`](https://github.com/TESA-workshops/sim-geostat-survey/blob/main/example.Rmd) is a walk through of a basic example
   - [`example-rep.R`](https://github.com/TESA-workshops/sim-geostat-survey/blob/main/example-rep.R) is a basic example of simulation testing with replicates
-
-
 
 
