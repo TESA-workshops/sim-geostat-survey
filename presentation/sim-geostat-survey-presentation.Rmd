@@ -56,6 +56,7 @@ tight_layout <- function(p,
 - Becoming increasingly important in stock assessment
 - Associated with difficult questions:
     - How many fish are in the sea?
+    - Where are they located?
     - How should we sample the population?
     - How should we analyze these data?
 
@@ -144,13 +145,13 @@ R. A. Fisher
 **Design-based approach**
 
 <p style="line-height: 1.5em">
-<span style="color: green;">Unbiased estimates</span>
+<span style="color: red;">Unbiased estimates</span>
 <br>
 Distribution-free
 <br><br>
 <span style="color: red;">Requires perfect design</span>
 <br>
-Surveys are rarely perfect <br> (e.g. gaps in coverage)
+Surveys are rarely perfect <br> (e.g., gaps in coverage)
 </p>
 <!-- Adds bias to design-based estimates -->
 
@@ -163,7 +164,7 @@ Surveys are rarely perfect <br> (e.g. gaps in coverage)
 **Model-based approach**
 
 <p style="line-height: 1.5em">
-<span style="color: green;">Flexible and precise</span>
+<span style="color: red;">Flexible and precise</span>
 <br>
 Can account for survey problems
 <br><br>
@@ -177,17 +178,17 @@ Assumptions are rarely perfect <br> (normal or abnormal?)
 </div>
 
 
-## Breakout questions {.build}
+## Possible breakout questions {.build}
 
-- Can biased inference be avoided using contemporary models?
-- Can models fill the gaps left by flaws in survey design?
+- Are there survey designs that result in bias or hyperstability in model-based estimates?
+- Can models fill gaps left by flaws in survey design?
 - Could survey designs be modified to improve model-based estimates?
 - Other?
 
 &nbsp; **Plan:** pursue answers using [sdmTMB](https://github.com/pbs-assess/sdmTMB) and [SimSurvey](https://github.com/PaulRegular/SimSurvey)  
 
 
-## What's [SimSurvey](https://github.com/PaulRegular/SimSurvey)? {.smaller}
+## What is [SimSurvey](https://github.com/PaulRegular/SimSurvey)? {.smaller}
 
 <p>
 #### An R package for simulating survey samples from age-structured, spatially-correlated populations
@@ -195,18 +196,18 @@ Assumptions are rarely perfect <br> (normal or abnormal?)
 
 **Simulation steps:**
 
-1. **Simulate abundance** - `sim_abundance`
+1. **Simulate abundance** - `sim_abundance()`
     - Common cohort model
 
-2. **Simulate spatial aggregation** - `sim_distribution`
+2. **Simulate spatial aggregation** - `sim_distribution()`
     - Includes depth associations and noise correlated across space, years and ages
 
-3. **Simulate survey data** - `sim_survey`
+3. **Simulate survey data** - `sim_survey()`
     - Sample population using stratified random survey
-    - These data can be analyzed using `run_strat` (design-based analysis), or using the [sdmTMB](https://github.com/pbs-assess/sdmTMB) package
+    - These data can be analyzed using `run_strat()` (design-based analysis), or using the [sdmTMB](https://github.com/pbs-assess/sdmTMB) package
 
 
-## What's [sdmTMB](https://github.com/pbs-assess/sdmTMB)? {.smaller}
+## What is [sdmTMB](https://github.com/pbs-assess/sdmTMB)? {.smaller}
 
 <p>
 #### An R package for fast and flexible fitting of spatiotemporal species distribution GLMMs with [TMB](https://github.com/kaskr/adcomp)
@@ -214,23 +215,27 @@ Assumptions are rarely perfect <br> (normal or abnormal?)
 
 **Modeling steps:**
 
-1. **Make a mesh of discrete locations** - `make_mesh`
-    - Used to estimate continuous spatial process
+1. **Make an R-INLA "mesh" representing spatial "knots"** - `make_mesh()`
+    <!-- - Used to approximate the spatial/spatiotemporal "random field" process -->
 
-2. **Fit spatiotemporal GLMM** - `sdmTMB`
-    - Implements a geostistical model using TMB, R-INLA, and Gaussian Markov random fields
+2. **Fit a spatiotemporal GLMM** - `sdmTMB()`
+    - Implements a geostatistical model using TMB, R-INLA, and Gaussian Markov random fields
+    - Function is set up similarly to `glm()`, `lmer()`, or `glmmTMB()`
     
-3. **Diagnose model** - `residuals`
-    - Check residuals using built in methods
+3. **Inspect the model** - `print()`, `tidy()`, `predict()`, `residuals()`
+    - Inspect or extract parameter estimates with `print()` or `tidy()`
+    - Check residuals using `residuals()` and built-in methods
+    - Plot various types of predictions with `predict()`, possibly with new data
+    - Compare models with `AIC()` or `sdmTMB_cv()` or self-simulation test with `sdmTMB_sim()`
 
 
 ## [SimSurvey](https://github.com/PaulRegular/SimSurvey) & [sdmTMB](https://github.com/pbs-assess/sdmTMB)
 
 - **Next steps:** 
-  1. Compare and contrast design-based and model-based estimates of the 'true' population
-  2. Introduce survey problems (e.g. reduce spatial coverage) and and repeat 1.
+  1. Compare and contrast design-based and model-based estimates of the "true" population
+  2. Introduce survey problems (e.g., reduce spatial coverage) and and repeat 1.
   
-- Initial testing can be found [here](https://github.com/TESA-workshops/sim-geostat-survey), where:
+- Initial code examples can be found [here](https://github.com/TESA-workshops/sim-geostat-survey), where:
   - [`example.Rmd`](https://github.com/TESA-workshops/sim-geostat-survey/blob/main/example.Rmd) is a walk through of a basic example
   - [`example-rep.R`](https://github.com/TESA-workshops/sim-geostat-survey/blob/main/example-rep.R) is a basic example of simulation testing with replicates
 
