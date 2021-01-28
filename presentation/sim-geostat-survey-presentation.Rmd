@@ -1,0 +1,195 @@
+---
+title: "Filling the gaps: using simulation to test model-based solutions to survey problems"
+author: "Sean C. Anderson & Paul M. Regular"
+date: "2021-01-28"
+output:
+  ioslides_presentation:
+    widescreen: true
+    incremental: true
+    logo: dfo_logo.png
+    css: dfo_style.css
+bibliography: references.bib
+---
+
+```{=html}
+<style>
+
+@import url('https://fonts.googleapis.com/css?family=Montserrat');
+
+.forceBreak { -webkit-column-break-after: always; break-after: column; }
+
+</style>
+```
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE,
+                      message = FALSE,
+                      warning = FALSE, 
+                      fig.width = 10, 
+                      fig.height = 5.2)
+```
+
+
+```{r data, include = FALSE}
+
+# xaringan::inf_mr()
+
+library(here)
+library(SimSurvey)
+library(sdmTMB)
+
+## wrapper for layout with some different defaults for this slideshow
+tight_layout <- function(p, 
+                         plot_bgcolor = "transparent",
+                         paper_bgcolor = "transparent",
+                         margin = list(l = 0, r = 0, t = 0, b = 0, pad = 0),
+                         font = list(size = 14, family = "'Montserrat', sans-serif"), 
+                         ..., data = NULL) {
+  layout(p, plot_bgcolor = plot_bgcolor, paper_bgcolor = paper_bgcolor,
+         margin = margin, font = font, ..., data = data)
+}
+
+```
+
+## Fisheries-independent surveys {.columns-2}
+
+- Conducted by many RFMOs
+- Becoming increasingly important in stock assessment
+- Associated with difficult questions:
+    - How many fish are in the sea?
+    - How should we sample the population?
+    - How should we analyze these data?
+
+<p class="forceBreak">
+
+</p>
+
+<br>
+<img src="graphics/teleost_twitter_crop.jpg" width="400"/>
+<font size="1"> 
+<br>
+&nbsp; <a href="https://twitter.com/coastguardcan/status/879410397790515201">Canadian Coast Guard | Twitter</a>
+</font>
+
+
+## The pursuit of answers {.columns-2}
+
+<!-- luckly, we are standing on the sholders of giants...theory and principles of sampling were developed by Fisher and Neyman in the 1930s -->
+
+- Long history behind the design and analysis of fisheries-independent surveys
+  - A design-based approach is common
+    - e.g., Stratified sampling and analysis
+  - Model-based approaches are gaining traction
+    - e.g., [VAST](https://github.com/James-Thorson-NOAA/VAST), [sdmTMB](https://github.com/pbs-assess/sdmTMB)
+
+<p class="forceBreak">
+
+</p>
+
+<img src="graphics/doubleday_strata_map.png" width="400"/>
+<font size="1"> 
+<br>
+&nbsp; <a href="https://archive.nafo.int/open/studies/s2/doubleday.pdf">Doubleday (1981). Manual on Groundfish Surveys in the Northwest Atlantic</a>
+</font>
+
+
+## Recurring debate {.columns-2 .build}
+
+<div class="centered">
+
+**Design-based approach**
+
+<!-- empirical - focused on the randomness from the random sampling design -->
+
+<font size="3"> 
+J. Neyman
+<br>
+<img src="https://statistics.berkeley.edu/sites/default/files/styles/max_325x325/public/inline-images/neyman.jpg?itok=2R8r88B5" width="150">
+</font>
+
+<p style="line-height: 1.5em">
+<span style="color: green;">Unbiased estimates</span>
+<br>
+<span style="color: red;">Requires perfect design</span>
+</p>
+
+</div>
+
+<p class="forceBreak">
+
+<div class="centered">
+
+**Model-based approach**
+
+<!-- parametric - focused on the randomness from underlying distributional assumptions -->
+
+<font size="3"> 
+R. A. Fisher 
+<br>
+<img src="https://upload.wikimedia.org/wikipedia/commons/a/aa/Youngronaldfisher2.JPG" width="150">
+</font>
+
+<p style="line-height: 1.5em">
+<span style="color: green;">Flexible and precise</span>
+<br>
+<span style="color: red;">Requires model assumptions</span>
+</p>
+
+</div>
+
+
+## Recurring debate {.columns-2 .build}
+
+<div class="centered">
+
+**Design-based approach**
+
+<p style="line-height: 1.5em">
+<span style="color: green;">Unbiased estimates</span>
+<br>
+Distribution-free
+<br><br>
+<span style="color: red;">Requires perfect design</span>
+<br>
+Surveys are rarely perfect <br> (e.g. gaps in coverage)
+</p>
+<!-- Adds bias to design-based estimates -->
+
+</div>
+
+<p class="forceBreak">
+
+<div class="centered">
+
+**Model-based approach**
+
+<p style="line-height: 1.5em">
+<span style="color: green;">Flexible and precise</span>
+<br>
+Can account for survey problems
+<br><br>
+<span style="color: red;">Requires model assumptions</span>
+<br>
+Assumptions are rarely perfect <br> (normal or abnormal?)
+<p>
+
+<!-- Adds bias to model-based estimates -->
+
+</div>
+
+
+## Breakout questions {.build}
+
+- Can biased inference be avoided using contemporary models?
+- Can models fill the gaps left by flaws in survey design?
+- Could survey designs be modified to improve model-based estimates?
+- Other?
+
+&nbsp; **Plan:** pursue answers using [sdmTMB](https://github.com/pbs-assess/sdmTMB) and [SimSurvey](https://github.com/PaulRegular/SimSurvey)  
+
+
+## What's SimSurvey?
+
+
+## What's sdmTMB?
+
+
