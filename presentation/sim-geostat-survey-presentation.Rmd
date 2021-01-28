@@ -187,9 +187,53 @@ Assumptions are rarely perfect <br> (normal or abnormal?)
 &nbsp; **Plan:** pursue answers using [sdmTMB](https://github.com/pbs-assess/sdmTMB) and [SimSurvey](https://github.com/PaulRegular/SimSurvey)  
 
 
-## What's SimSurvey?
+## What's [SimSurvey](https://github.com/PaulRegular/SimSurvey)? {.smaller}
+
+<p>
+#### An R package for simulating survey samples from age-structured, spatially-correlated populations
+</p>
+
+**Simulation steps:**
+
+1. **Simulate abundance** - `sim_abundance`
+    - Common cohort model
+
+2. **Simulate spatial aggregation** - `sim_distribution`
+    - Includes depth associations and noise correlated across space, years and ages
+
+3. **Simulate survey data** - `sim_survey`
+    - Sample population using stratified random survey
+    - These data can be analyzed using `run_strat` (design-based analysis), or using the [sdmTMB](https://github.com/pbs-assess/sdmTMB) package
 
 
-## What's sdmTMB?
+## What's [sdmTMB](https://github.com/pbs-assess/sdmTMB)? {.smaller}
+
+<p>
+#### An R package for fast and flexible fitting of spatiotemporal species distribution GLMMs with [TMB](https://github.com/kaskr/adcomp)
+</p>
+
+**Modeling steps:**
+
+1. **Make a mesh of discrete locations** - `make_mesh`
+    - Used to estimate continuous spatial process
+
+2. **Fit spatiotemporal GLMM** - `sdmTMB`
+    - Implements a geostistical model using TMB, R-INLA, and Gaussian Markov random fields
+    
+3. **Diagnose model** - `residuals`
+    - Check residuals using built in methods
+
+
+## [SimSurvey](https://github.com/PaulRegular/SimSurvey) & [sdmTMB](https://github.com/pbs-assess/sdmTMB)
+
+- **Next steps:** 
+  1. Compare and contrast design-based and model-based estimates of the 'true' population
+  2. Introduce survey problems (e.g. reduce spatial coverage) and and repeat 1.
+  
+- Initial testing can be found [here](https://github.com/TESA-workshops/sim-geostat-survey), where:
+  - [`example.Rmd`](https://github.com/TESA-workshops/sim-geostat-survey/blob/main/example.Rmd) is a walk through of a basic example
+  - [`example-rep.R`](https://github.com/TESA-workshops/sim-geostat-survey/blob/main/example-rep.R) is a basic example of simulation testing with replicates
+
+
 
 
