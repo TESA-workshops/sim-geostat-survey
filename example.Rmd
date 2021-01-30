@@ -40,7 +40,7 @@ Next we will conduct a survey on our simulated population. We will work with a s
 survey <- SimSurvey::sim_survey(sim, n_sims = 1)
 ```
 
-And, again, they format the resulting data into a data frame we can work with:
+And, again, format the resulting data into a data frame we can work with:
 
 ```{r}
 xy <- tibble::as_tibble(survey$grid_xy)
@@ -106,7 +106,7 @@ dat$offset <- log(dat$tow_area)
 
 Next we will fit the model. In the following code chunk:
 
-- `include_spatial = TRUE` means the model will include a separate spatial random field (a wiggly intercept surface that stays constant through time) and spatiotemporal fields (a ranfom field that varies each year). There's also an option for correlated fields (`ar1_fields = TRUE`).
+- `include_spatial = TRUE` means the model will include a separate spatial random field (a wiggly intercept surface that stays constant through time) and spatiotemporal fields (a random field that varies each year). There's also an option for correlated fields (`ar1_fields = TRUE`).
 - `time = "year"` tells the function which column of data represents the time element and tells the model this is spatiotemporal, not just spatial, data.
 - `silent = FALSE` tells the function to print out TMB progress messages.
 - `offset` is a reserved word in sdmTMB and will be fit with its coefficient fixed at 1.
@@ -148,7 +148,7 @@ ggplot(dat, aes(x, y, colour = resid, size = abs(resid))) +
   scale_size_area(max_size = 2)
 ```
 
-These are randomized quantile residuals as are used in the DHARMa R package. These are adjusted so that they would be Gaussian distributed if the model were perfectly consistent with the data:
+These are randomized quantile residuals---similar to the DHARMa R package. These are adjusted so that they would be Gaussian distributed if the model were consistent with the data:
 
 ```{r}
 hist(dat$resid)
@@ -201,7 +201,7 @@ ggplot(both, aes(x, y, fill = log(N_scaled))) +
 
 We can pass the output from our prediction into the `get_index()` function. It sums up the abundance in all of the grid cells and calculates standard errors on the result.
 
-There is an option to enable bias correction (`bias_correct = TRUE`) because of the nonlinear transformation of the predictions (exp). This will not have a noticeable difference here because the sampling is relatively constant across space and years, but in some situations it would be important to turn on. It would be much slower, so we will not work with that here yet.
+There is an option to enable bias correction (`bias_correct = TRUE`) because of the nonlinear transformation of the predictions (exp). This will not have a noticeable difference here because the sampling is relatively constant across space and years, but in some situations it would be important to turn on. It would be much slower, so we will not work with that here.
 
 ```{r}
 index <- get_index(pred)
