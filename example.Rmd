@@ -56,7 +56,6 @@ ggplot(dat, aes(x, y, colour = log(N + 1), size = N)) +
   facet_wrap(vars(year)) +
   scale_colour_viridis_c() +
   scale_size_area(max_size = 4)
-ggsave("presentation/graphics/sim-sp-survey.svg", width = 9, height = 6)
 ```
 
 This is what the data look like:
@@ -75,7 +74,6 @@ df_sim %>%
   geom_raster() +
   facet_wrap(~year) +
   scale_fill_viridis_c()
-ggsave("presentation/graphics/sim-sp-abund.svg", width = 9, height = 6)
 ```
 
 # Fitting a geostatistical spatiotemporal model
@@ -207,7 +205,6 @@ filter(both, year %in% 1:5) %>%
   geom_raster() +
   facet_grid(type ~ year) +
   scale_fill_viridis_c(limits = quantile(log(both$N_scaled), probs = c(0.05, 1)))
-ggsave("presentation/graphics/sim-sp-fit.svg", width = 10, height = 4)
 ```
 
 
@@ -241,5 +238,4 @@ ggplot(both, aes(year, N_scaled, group = type)) +
   labs(x = "Year", y = "Relative abundance", colour = "Type", fill = "Type", lty = "Type") +
   scale_color_manual(values = c("Estimated" = "grey30", "True" = "red")) +
   scale_fill_manual(values = c("Estimated" = "grey30", "True" = "red"))
-ggsave("presentation/graphics/sim-ts-1.svg", width = 6, height = 4)
 ```

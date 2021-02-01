@@ -63,8 +63,6 @@ result_scaled %>%
   scale_fill_manual(values = c("Estimated" = "grey30", "True" = "red")) +
   facet_wrap(~iter, ncol = 3, scales = "free_y")
 
-ggsave("presentation/graphics/rep-ts-example.svg", width = 9, height = 6)
-
 summary_stats <- result_scaled %>%
   group_by(year, iter) %>%
   summarise(
