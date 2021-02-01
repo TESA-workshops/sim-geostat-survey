@@ -42,7 +42,7 @@ sim_and_fit <- function(iter) {
     mutate(iter = iter)
 }
 
-result <- furrr::future_map_dfr(seq_len(9), sim_and_fit,
+result <- furrr::future_map_dfr(seq_len(16), sim_and_fit,
   .options = furrr::furrr_options(seed = TRUE))
 
 not_converged <- dplyr::filter(result, (bad_eig | max_gradient > 0.001) & type == "Estimated")
@@ -61,7 +61,7 @@ result_scaled %>%
   labs(x = "Year", y = "Abundance", colour = "Type", fill = "Type", lty = "Type") +
   scale_color_manual(values = c("Estimated" = "grey30", "True" = "red")) +
   scale_fill_manual(values = c("Estimated" = "grey30", "True" = "red")) +
-  facet_wrap(~iter, ncol = 3, scales = "free_y")
+  facet_wrap(~iter, ncol = 4, scales = "free_y")
 
 summary_stats <- result_scaled %>%
   group_by(year, iter) %>%
