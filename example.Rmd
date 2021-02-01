@@ -34,10 +34,11 @@ df_sim <- as_tibble(sim$sp_N)
 df_sim <- left_join(df_sim, xy_sim, by = "cell")
 ```
 
-Next we will conduct a survey on our simulated population. We will work with a single replicate.
+Next we will conduct a survey on our simulated population. We will work with a single replicate. Results from a stratified analysis are also added to the output for later comparisons to model-based estimates.
 
 ```{r}
-survey <- SimSurvey::sim_survey(sim, n_sims = 1)
+survey <- SimSurvey::sim_survey(sim, n_sims = 1) %>% 
+  SimSurvey::run_strat()
 ```
 
 And, again, format the resulting data into a data frame we can work with:
@@ -224,9 +225,13 @@ Now we can combine our estimated index with the "true" known population trajecto
 ```{r}
 true_abund <- tibble(year = unique(df_sim$year), N = as.numeric(colSums(survey$I))) %>%
   mutate(type = "True")
+strat_abund <- tibble::as_tibble(survey$total_strat) %>% 
+  mutate(N = total, type = "Design-based") %>% 
+  select(year, N, type)
 both <- index %>%
-  mutate(type = "Estimated", N = est) %>%
+  mutate(type = "Model-based", N = est) %>%
   bind_rows(true_abund) %>%
+  bind_rows(strat_abund) %>% 
   group_by(type) %>%
   mutate(geo_mean = exp(mean(log(N), na.rm = TRUE)),
     lwr_scaled = lwr / geo_mean, N_scaled = N / geo_mean, upr_scaled = upr / geo_mean)
@@ -236,10 +241,12 @@ And make a plot of the result:
 
 ```{r, warning=FALSE}
 ggplot(both, aes(year, N_scaled, group = type)) +
-  geom_line(aes(colour = type, lty = type)) +
+  geom_line(aes(colour = type, size = type)) +
   geom_ribbon(aes(ymin = lwr_scaled, ymax = upr_scaled, fill = type), alpha = 0.3) +
-  labs(x = "Year", y = "Relative abundance", colour = "Type", fill = "Type", lty = "Type") +
-  scale_color_manual(values = c("Estimated" = "grey30", "True" = "red")) +
-  scale_fill_manual(values = c("Estimated" = "grey30", "True" = "red"))
+  labs(x = "Year", y = "Relative abundance", colour = "Type", fill = "Type", size = "Type") +
+  scale_color_manual(values = c("Model-based" = "grey30", "Design-based" = "steelblue", "True" = "red")) +
+  scale_fill_manual(values = c("Model-based" = "grey30", "Design-based" = "steelblue", "True" = "red")) +
+  scale_size_manual(values = c("Model-based" = 1, "Design-based" = 1, "True" = 1.5)) +
+  theme_minimal()
 ggsave("presentation/graphics/sim-ts-1.svg", width = 6, height = 4)
 ```

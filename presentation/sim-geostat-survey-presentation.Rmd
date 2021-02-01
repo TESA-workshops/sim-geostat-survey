@@ -1,7 +1,7 @@
 ---
 title: "Filling the gaps: using simulation to test model-based solutions to survey problems"
 author: "Sean C. Anderson & Paul M. Regular"
-date: "2021-01-28"
+date: "2021-02-01"
 output:
   ioslides_presentation:
     widescreen: true
