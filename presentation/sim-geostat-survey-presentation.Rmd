@@ -257,6 +257,14 @@ Assumptions are rarely perfect <br> (normal or abnormal?)
 
 </div>
 
+## Example survey observations
+
+<div class="centered">
+
+<img src="graphics/sim-sp-survey.svg" width="700"/>
+
+</div>
+
 ## Example predicted and simulated relative abundance
 
 <div class="centered">
