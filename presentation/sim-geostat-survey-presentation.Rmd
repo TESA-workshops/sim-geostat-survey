@@ -248,6 +248,38 @@ Assumptions are rarely perfect <br> (normal or abnormal?)
 <!-- <li> Use `get_index()` to sum the expected density or abundance across the grid and calculate standard errors -->
 <!-- </ul> -->
 <!-- </ol> -->
+
+## Example simulated abundance
+
+<div class="centered">
+
+<img src="graphics/sim-sp-abund.svg" width="700"/>
+
+</div>
+
+## Example predicted and simulated relative abundance
+
+<div class="centered">
+
+<img src="graphics/sim-sp-fit.svg" width="850"/>
+
+</div>
+
+## Example estimated and true survey index
+
+<div class="centered">
+
+<img src="graphics/sim-ts-1.svg" width="700"/>
+
+</div>
+
+## Example estimated + true index over 9 replicates
+
+<div class="centered">
+
+<img src="graphics/rep-ts-example.svg" width="700"/>
+
+</div>
     
 ## [SimSurvey](https://github.com/PaulRegular/SimSurvey) & [sdmTMB](https://github.com/pbs-assess/sdmTMB)
 
