@@ -1,7 +1,9 @@
 ---
-author: ""
-title: ""
+author: "Sean Anderson, Paul Regular"
+title: "Example of simulating data with SimSurvey and index standardization with sdmTMB"
 ---
+
+# Setup
 
 ```{r, warning=FALSE, message=FALSE}
 library(dplyr)
@@ -9,6 +11,10 @@ library(ggplot2)
 library(SimSurvey)
 library(sdmTMB)
 ```
+
+# Population and survey simulation
+
+First we will simulate a spatial, age-structured population with SimSurvey:
 
 ```{r}
 set.seed(2849)
@@ -18,20 +24,31 @@ sim <- SimSurvey::sim_abundance(ages = seq(1, 10), years = seq(1, 10)) %>%
     ays_covar = SimSurvey::sim_ays_covar(phi_age = 0.8, phi_year = 0.1),
     depth_par = SimSurvey::sim_parabola(mu = 200, sigma = 30)
   )
+```
+
+Then we will join the output into a data frame we can work with:
+
+```{r}
 xy_sim <- as_tibble(sim$grid_xy)
 df_sim <- as_tibble(sim$sp_N)
 df_sim <- left_join(df_sim, xy_sim, by = "cell")
 ```
 
+Next we will conduct a survey on our simulated population. We will work with a single replicate.
+
 ```{r}
 survey <- SimSurvey::sim_survey(sim, n_sims = 1)
 ```
+
+And, again, format the resulting data into a data frame we can work with:
 
 ```{r}
 xy <- tibble::as_tibble(survey$grid_xy)
 dat <- tibble::as_tibble(survey$setdet) %>% select(x, y, set, year, N = n, tow_area)
 dat <- left_join(dat, xy, by = c("x", "y"))
 ```
+
+Here are the survey observations:
 
 ```{r}
 ggplot(dat, aes(x, y, colour = log(N + 1), size = N)) +
@@ -40,6 +57,14 @@ ggplot(dat, aes(x, y, colour = log(N + 1), size = N)) +
   scale_colour_viridis_c() +
   scale_size_area(max_size = 4)
 ```
+
+This is what the data look like:
+
+```{r}
+glimpse(dat)
+```
+
+And the underlying abundance:
 
 ```{r}
 df_sim %>% 
@@ -51,48 +76,67 @@ df_sim %>%
   scale_fill_viridis_c()
 ```
 
-```{r}
-glimpse(dat)
-unique(dat$year)
-range(dat$y)
-range(dat$x)
-nrow(dat)
-```
+# Fitting a geostatistical spatiotemporal model
+
+First, we need to set up an SPDE (Stochastic partial differential equation) mesh object via the INLA R package. The important part of this is coming up with a reasonable resolution of "knots" or representative locations that will be modelled. Values in between these knots will be interpolated with bilinear interpolation along the triangles. This approach greatly increases computational efficiency.
 
 ```{r}
 mesh <- sdmTMB::make_mesh(dat, xy_cols = c("x", "y"), cutoff = 15)
 ```
 
-```{r}
-mesh$mesh$n
-```
+We can make a plot of our mesh:
 
 ```{r}
 plot(mesh)
 ```
 
+And look at how many knots there are. Smaller `cutoff` values (in units x-y coordinate units), will generate more knots. More knots will make for a better approximation at the expense of fitting time.
+
+```{r}
+mesh$mesh$n
+```
+
+We will set up an "offset" variable to represent the tow area. Details [here](https://stats.stackexchange.com/questions/11182/when-to-use-an-offset-in-a-poisson-regression) and [here](https://stats.stackexchange.com/questions/66791/where-does-the-offset-go-in-poisson-negative-binomial-regression?noredirect=1&lq=1).
+
+Here the tow area is the same on all sets, but this wouldn't necessarily be the case. Alternatively, continuous biomass density data with zeros could be modelled with the Tweedie distribution and a log link. Because this example works with counts of fish, we will use a negative binomial family.
+
 ```{r}
 dat$offset <- log(dat$tow_area)
 ```
+
+Next we will fit the model. In the following code chunk:
+
+- `include_spatial = TRUE` means the model will include a separate spatial random field (a wiggly intercept surface that stays constant through time) and spatiotemporal fields (a random field that varies each year). There's also an option for correlated fields (`ar1_fields = TRUE`).
+- `time = "year"` tells the function which column of data represents the time element and tells the model this is spatiotemporal, not just spatial, data.
+- `silent = FALSE` tells the function to print out TMB progress messages.
+- `offset` is a reserved word in sdmTMB and will be fit with its coefficient fixed at 1.
+- `0 + as.factor(year)` in the formula sets up the model matrix so that there is an independent mean for each year.
+- `spde = mesh` tells it to use our mesh from above.
 
 ```{r, message=FALSE, warning=FALSE, results='hide'}
 fit <- sdmTMB(N ~ 0 + as.factor(year) + offset,
   data = dat,
   family = nbinom2(link = "log"), spde = mesh,
-  include_spatial = TRUE, ar1_fields = FALSE,
+  include_spatial = TRUE,
   time = "year",
   silent = FALSE
 )
 ```
 
+We can look at a summary of our fit:
+
 ```{r}
 print(fit)
 ```
+
+And extract values from estimated fixed and random effect variables using the `tidy()` method, which follows the broom package convention:
 
 ```{r} 
 tidy(fit, conf.int = TRUE)
 tidy(fit, conf.int = TRUE, effects = "ran_pars")
 ```
+
+We can look at residuals:
 
 ```{r}
 dat$resid <- residuals(fit)
@@ -104,11 +148,15 @@ ggplot(dat, aes(x, y, colour = resid, size = abs(resid))) +
   scale_size_area(max_size = 2)
 ```
 
+These are randomized quantile residuals---similar to the DHARMa R package. These are adjusted so that they would be Gaussian distributed if the model were consistent with the data:
+
 ```{r}
 hist(dat$resid)
-qqnorm(dat$resid)
-qqline(dat$resid)
 ```
+
+# Predicting over the survey domain and calculating an index of abundance
+
+To calculate an index of abundance, first we need to create a grid that covers the entirety of our survey domain. In this case that would be a square grid:
 
 ```{r}
 grid_dat <- tidyr::expand_grid(x = sort(unique(df_sim$x)), y = sort(unique(df_sim$y)))
@@ -116,9 +164,21 @@ grid_dat <- purrr::map_dfr(sort(unique(dat$year)), ~ bind_cols(grid_dat, year = 
 grid_dat$offset <- mean(dat$offset)
 ```
 
+Next we need to predict from our model onto our survey grid. `return_tmb_object = TRUE` tells the function to return a TMB object that is critical for calculating the survey index. If enabled, the result will be a list with the predictions as one element and the TMB object as another. If disabled, the result will just be a prediction data frame. 
+
+The `area` argument represents the area of a grid cell so that the resulting estimate is per m^2^ or km^2^. Here, that is 10 x 10 km. `area` can be a vector if some grid cells overlap land or are partially outside the survey domain.
+
 ```{r}
-pred <- predict(fit, newdata = grid_dat, return_tmb_object = TRUE)
+pred <- predict(fit, newdata = grid_dat, return_tmb_object = TRUE, area = 100)
 ```
+
+These are the prediction elements. See `?predict.sdmTMB` for details.
+
+```{r}
+head(pred$data)
+```
+
+We can stop to plot the predicted and true known abundance distribution through time. Note that the true abundance row does not account for survey catchability or selectivity in this plot:
 
 ```{r}
 true <- df_sim %>% 
@@ -139,9 +199,15 @@ ggplot(both, aes(x, y, fill = log(N_scaled))) +
   scale_fill_viridis_c(limits = quantile(log(both$N_scaled), probs = c(0.05, 1)))
 ```
 
+We can pass the output from our prediction into the `get_index()` function. It sums up the abundance in all of the grid cells and calculates standard errors on the result.
+
+There is an option to enable bias correction (`bias_correct = TRUE`) because of the nonlinear transformation of the predictions (exp). This will not have a noticeable difference here because the sampling is relatively constant across space and years, but in some situations it would be important to turn on. It would be much slower, so we will not work with that here.
+
 ```{r}
 index <- get_index(pred)
 ```
+
+Now we can combine our estimated index with the "true" known population trajectory, which does account for selectivity (but not catchability):
 
 ```{r}
 true_abund <- tibble(year = unique(df_sim$year), N = as.numeric(colSums(survey$I))) %>%
@@ -153,6 +219,8 @@ both <- index %>%
   mutate(geo_mean = exp(mean(log(N), na.rm = TRUE)),
     lwr_scaled = lwr / geo_mean, N_scaled = N / geo_mean, upr_scaled = upr / geo_mean)
 ```
+
+And make a plot of the result:
 
 ```{r, warning=FALSE}
 ggplot(both, aes(year, N_scaled, group = type)) +
