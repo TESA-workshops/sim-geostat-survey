@@ -222,7 +222,7 @@ Assumptions are rarely perfect <br> (normal or abnormal?)
     - Implements a geostatistical model using TMB, R-INLA, and Gaussian Markov random fields
     - Function is set up similarly to `glm()`, `lmer()`, or `glmmTMB()`
     
-3. **Inspect the model** - `print()`, `tidy()`, `predict()`, `residuals()`, `sdmTMB_cv()`, `sdmTMB_cv()`, `AIC()`
+3. **Inspect the model** - `print()`, `tidy()`, `predict()`, `residuals()`, `sdmTMB_cv()`, `sdmTMB_sim()`, `AIC()`
     <!-- - Inspect or extract parameter estimates with `print()` or `tidy()` -->
     <!-- - Check residuals using `residuals()` and built-in methods -->
     <!-- - Plot various types of predictions with `predict()`, possibly with new data -->
