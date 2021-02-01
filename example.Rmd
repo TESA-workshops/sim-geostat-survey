@@ -56,6 +56,7 @@ ggplot(dat, aes(x, y, colour = log(N + 1), size = N)) +
   facet_wrap(vars(year)) +
   scale_colour_viridis_c() +
   scale_size_area(max_size = 4)
+ggsave("presentation/graphics/sim-sp-survey.svg", width = 9, height = 6)
 ```
 
 This is what the data look like:
@@ -71,9 +72,10 @@ df_sim %>%
   group_by(x, y, year, cell) %>% 
   summarise(N = sum(N), .groups = "drop") %>% 
   ggplot(aes(x, y, fill = log(N + 1))) +
-  geom_tile() +
+  geom_raster() +
   facet_wrap(~year) +
   scale_fill_viridis_c()
+ggsave("presentation/graphics/sim-sp-abund.svg", width = 9, height = 6)
 ```
 
 # Fitting a geostatistical spatiotemporal model
@@ -199,6 +201,16 @@ ggplot(both, aes(x, y, fill = log(N_scaled))) +
   scale_fill_viridis_c(limits = quantile(log(both$N_scaled), probs = c(0.05, 1)))
 ```
 
+```{r}
+filter(both, year %in% 1:5) %>% 
+  ggplot(aes(x, y, fill = log(N_scaled))) +
+  geom_raster() +
+  facet_grid(type ~ year) +
+  scale_fill_viridis_c(limits = quantile(log(both$N_scaled), probs = c(0.05, 1)))
+ggsave("presentation/graphics/sim-sp-fit.svg", width = 10, height = 4)
+```
+
+
 We can pass the output from our prediction into the `get_index()` function. It sums up the abundance in all of the grid cells and calculates standard errors on the result.
 
 There is an option to enable bias correction (`bias_correct = TRUE`) because of the nonlinear transformation of the predictions (exp). This will not have a noticeable difference here because the sampling is relatively constant across space and years, but in some situations it would be important to turn on. It would be much slower, so we will not work with that here.
@@ -226,7 +238,8 @@ And make a plot of the result:
 ggplot(both, aes(year, N_scaled, group = type)) +
   geom_line(aes(colour = type, lty = type)) +
   geom_ribbon(aes(ymin = lwr_scaled, ymax = upr_scaled, fill = type), alpha = 0.3) +
-  labs(x = "Year", y = "Abundance", colour = "Type", fill = "Type", lty = "Type") +
+  labs(x = "Year", y = "Relative abundance", colour = "Type", fill = "Type", lty = "Type") +
   scale_color_manual(values = c("Estimated" = "grey30", "True" = "red")) +
   scale_fill_manual(values = c("Estimated" = "grey30", "True" = "red"))
+ggsave("presentation/graphics/sim-ts-1.svg", width = 6, height = 4)
 ```
