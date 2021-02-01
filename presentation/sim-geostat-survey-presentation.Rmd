@@ -222,33 +222,38 @@ Assumptions are rarely perfect <br> (normal or abnormal?)
     - Implements a geostatistical model using TMB, R-INLA, and Gaussian Markov random fields
     - Function is set up similarly to `glm()`, `lmer()`, or `glmmTMB()`
     
-3. **Inspect the model** - `print()`, `tidy()`, `predict()`, `residuals()`
-    - Inspect or extract parameter estimates with `print()` or `tidy()`
-    - Check residuals using `residuals()` and built-in methods
-    - Plot various types of predictions with `predict()`, possibly with new data
-    - Compare models with `AIC()` or `sdmTMB_cv()` or self-simulation test with `sdmTMB_sim()`
+3. **Inspect the model** - `print()`, `tidy()`, `predict()`, `residuals()`, `sdmTMB_cv()`, `sdmTMB_cv()`, `AIC()`
+    <!-- - Inspect or extract parameter estimates with `print()` or `tidy()` -->
+    <!-- - Check residuals using `residuals()` and built-in methods -->
+    <!-- - Plot various types of predictions with `predict()`, possibly with new data -->
+    <!-- - Compare models with `AIC()` or `sdmTMB_cv()` or self-simulation test with `sdmTMB_sim()` -->
+    
+4. **Predict on a grid that represents the survey domain** - `predict()`
 
-## What is [sdmTMB](https://github.com/pbs-assess/sdmTMB)? {.smaller}
+5. **Calculate the survey index** - `get_index()`
+    - Use `get_index()` to sum the expected density or abundance across the grid and calculate standard errors
 
-**Modeling steps continued:**
+<!-- ## What is [sdmTMB](https://github.com/pbs-assess/sdmTMB)? {.smaller} -->
 
-<ol start=4>
-<li> **Predict on a grid that represents the survey domain** - `predict()`
-<ul>
-<li> `predict(model, newdata = grid, return_tmb_object = TRUE)`
-</ul>
+<!-- **Modeling steps continued:** -->
 
-<li> **Calculate the survey index** - `get_index()`
-<ul>
-<li> Use `get_index()` to sum the expected density or abundance across the grid and calculate standard errors
-</ul>
-</ol>
+<!-- <ol start=4> -->
+<!-- <li> **Predict on a grid that represents the survey domain** - `predict()` -->
+<!-- <ul> -->
+<!-- <li> `predict(model, newdata = grid, return_tmb_object = TRUE)` -->
+<!-- </ul> -->
+
+<!-- <li> **Calculate the survey index** - `get_index()` -->
+<!-- <ul> -->
+<!-- <li> Use `get_index()` to sum the expected density or abundance across the grid and calculate standard errors -->
+<!-- </ul> -->
+<!-- </ol> -->
     
 ## [SimSurvey](https://github.com/PaulRegular/SimSurvey) & [sdmTMB](https://github.com/pbs-assess/sdmTMB)
 
 - **Next steps:** 
   1. Compare and contrast design-based and model-based estimates of the "true" population
-  2. Introduce survey problems (e.g., reduce spatial coverage) and and repeat 1.
+  2. Introduce survey problems (e.g., reduce spatial coverage) and repeat 1.
   
 - Initial code examples can be found [here](https://github.com/TESA-workshops/sim-geostat-survey), where:
   - [`example.Rmd`](https://github.com/TESA-workshops/sim-geostat-survey/blob/main/example.Rmd) is a walk through of a basic example
