@@ -14,11 +14,15 @@ library(sdmTMB)
 
 # Population and survey simulation
 
-First we will simulate a spatial, age-structured population with SimSurvey. Default settings for the `sim_abundance()` and `sim_distribution()` function are largely used
+First we will simulate a spatial, age-structured population with SimSurvey. In short, here is what is going on in the following chunk:
+  - `sim_abundance()` is using a cohort equation to simulate an age-structure population including ages 1 to 20 [`ages = seq(1, 20)`], across 10 years [`years = seq(1, 10)`]
+  - `sim_distribution()` is distributing the age-structured population over a square grid [`make_grid()`] with a cell resolution of 10 x 10 km [`res = c(10, 10)`] and depths between 10 to 500 m [`depth_range = c(10, 500))`]. Noise correlated across space, year, and age dimensions is added [`sim_ays_covar()`], with strong correlation across ages [`phi_age = 0.8`] but weak correlation across years [`phi_year = 0.1`]. A parabolic depth 'preference' is also simulated [`sim_parabola()`] where there is a propensity for fish to occur around 200 meters [`mu = 200, sigma = 30`].
+
+There are several arguments not modified in the example below. As such, defaults are largely used and these settings were based on a cod stock off the south coast of Newfoundland (3Ps cod). So, consider this a simulation for a cod-like species.
 
 ```{r}
 set.seed(2849)
-sim <- SimSurvey::sim_abundance(ages = seq(1, 10), years = seq(1, 10)) %>%
+sim <- SimSurvey::sim_abundance(ages = seq(1, 20), years = seq(1, 10)) %>%
   SimSurvey::sim_distribution(
     grid = SimSurvey::make_grid(res = c(10, 10), depth_range = c(10, 500)),
     ays_covar = SimSurvey::sim_ays_covar(phi_age = 0.8, phi_year = 0.1),
