@@ -13,7 +13,7 @@ sim_and_fit <- function(iter) {
       depth_par = sim_parabola(mu = 200, sigma = 30)
     )
 
-  survey <- sim_survey(sim, n_sims = 1)
+  survey <- sim_survey(sim, n_sims = 1) %>% run_strat()
   xy <- as_tibble(survey$grid_xy)
   dat <- as_tibble(survey$setdet) %>%
     select(x, y, set, year, N = n, tow_area)
@@ -37,7 +37,11 @@ sim_and_fit <- function(iter) {
 
   true_abund <- tibble(year = unique(dat$year), N = as.numeric(colSums(survey$I))) %>%
     mutate(type = "True")
-  mutate(index, type = "Estimated", N = est) %>%
+  strat_abund <- tibble::as_tibble(survey$total_strat) %>%
+    mutate(N = total, type = "Design-based") %>%
+    select(year, N, type)
+  mutate(index, type = "Model-based", N = est) %>%
+    bind_rows(strat_abund) %>%
     bind_rows(true_abund) %>%
     mutate(iter = iter)
 }
@@ -51,26 +55,30 @@ stopifnot(nrow(not_converged) == 0L)
 result_scaled <- result %>%
   group_by(type, iter) %>%
   mutate(geo_mean = exp(mean(log(N), na.rm = TRUE)),
-    lwr_scaled = lwr / geo_mean, N_scaled = N / geo_mean, upr_scaled = upr / geo_mean) %>%
-  ungroup()
+    lwr_scaled = lwr / geo_mean, N_scaled = N / geo_mean, upr_scaled = upr / geo_mean,
+    type = factor(type, levels = c("True", "Design-based", "Model-based"))) %>%
+  ungroup() %>%
+  arrange(type)
 
 result_scaled %>%
   ggplot(aes(year, N_scaled, group = type)) +
-  geom_line(aes(colour = type, lty = type)) +
+  geom_line(aes(colour = type, size = type)) +
   geom_ribbon(aes(ymin = lwr_scaled, ymax = upr_scaled, fill = type), alpha = 0.3) +
-  labs(x = "Year", y = "Abundance", colour = "Type", fill = "Type", lty = "Type") +
-  scale_color_manual(values = c("Estimated" = "grey30", "True" = "red")) +
-  scale_fill_manual(values = c("Estimated" = "grey30", "True" = "red")) +
-  facet_wrap(~iter, ncol = 3, scales = "free_y")
+  labs(x = "Year", y = "Relative abundance", colour = "Type", fill = "Type", size = "Type") +
+  scale_color_manual(values = c("Model-based" = "grey30", "Design-based" = "steelblue", "True" = "red")) +
+  scale_fill_manual(values = c("Model-based" = "grey30", "Design-based" = "steelblue", "True" = "red")) +
+  scale_size_manual(values = c("Model-based" = 0.5, "Design-based" = 0.5, "True" = 1)) +
+  facet_wrap(~iter, ncol = 3, scales = "free_y") +
+  theme_minimal() + theme(legend.position = "bottom")
 
 ggsave("presentation/graphics/rep-ts-example.svg", width = 9, height = 6)
 
 summary_stats <- result_scaled %>%
   group_by(year, iter) %>%
   summarise(
-    est_lwr = lwr_scaled[type == "Estimated"],
-    est_upr = upr_scaled[type == "Estimated"],
-    est = N_scaled[type == "Estimated"],
+    est_lwr = lwr_scaled[type == "Model-based"],
+    est_upr = upr_scaled[type == "Model-based"],
+    est = N_scaled[type == "Model-based"],
     true = N_scaled[type == "True"], .groups = "drop") %>%
   mutate(covered = est_lwr < true & est_upr > true)
 mean(summary_stats$covered)
