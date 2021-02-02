@@ -46,7 +46,7 @@ sim_and_fit <- function(iter) {
     mutate(iter = iter)
 }
 
-result <- furrr::future_map_dfr(seq_len(9), sim_and_fit,
+result <- furrr::future_map_dfr(seq_len(16), sim_and_fit,
   .options = furrr::furrr_options(seed = TRUE))
 
 not_converged <- dplyr::filter(result, (bad_eig | max_gradient > 0.001) & type == "Estimated")
@@ -70,8 +70,6 @@ result_scaled %>%
   scale_size_manual(values = c("Model-based" = 0.5, "Design-based" = 0.5, "True" = 1)) +
   facet_wrap(~iter, ncol = 3, scales = "free_y") +
   theme_minimal() + theme(legend.position = "bottom")
-
-ggsave("presentation/graphics/rep-ts-example.svg", width = 9, height = 6)
 
 summary_stats <- result_scaled %>%
   group_by(year, iter) %>%
