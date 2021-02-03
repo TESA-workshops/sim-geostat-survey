@@ -1,0 +1,25 @@
+---
+author: "Sean Anderson, Paul Regular"
+title: "Filling the gaps: using simulation to test model-based solutions to survey problems"
+---
+
+# Participants
+
+Sean Anderson, Pacific Region
+Paul Regular, NL Region
+
+# The challenge
+
+# Approach taken
+
+# Key points discussed
+
+# Successes
+
+# Challenges
+
+# How far did we get?
+
+# Next steps
+
+# Expected outcomes
