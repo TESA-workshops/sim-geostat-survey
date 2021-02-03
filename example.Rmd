@@ -17,10 +17,15 @@ library(sdmTMB)
 
 First we will simulate a spatial, age-structured population with SimSurvey. In short, here is what is going on in the following chunk:
 
-  - `sim_abundance()` is using a cohort equation to simulate an age-structured population including ages 1 to 20 [`ages = seq(1, 20)`], across 10 years [`years = seq(1, 10)`]
-  - `sim_distribution()` is distributing the age-structured population over a square grid [`make_grid()`] with a cell resolution of 10 x 10 km [`res = c(10, 10)`] and depths between 10 to 500 m [`depth_range = c(10, 500))`]. 
-     - Noise correlated across space, year, and age dimensions is added [`sim_ays_covar()`], with strong correlation across ages [`phi_age = 0.8`] but weak correlation across years [`phi_year = 0.1`].
-     - A parabolic depth 'preference' is also simulated [`sim_parabola()`] where there is a propensity for fish to occur around 200 meters [`mu = 200, sigma = 30`].
+-   `sim_abundance()` is using a cohort equation to simulate an age-structured population including ages 1 to 20 [`ages = seq(1, 20)`], across 10 years [`years = seq(1, 10)`]
+
+-   `sim_distribution()` is distributing the age-structured population from `sim_abundance()` over space. Specifically it
+
+    -   spreads the population over a square grid [`make_grid()`] with a cell resolution of 10 x 10 km [`res = c(10, 10)`] and depths between 10 to 500 m [`depth_range = c(10, 500))`];
+
+    -   adds noise correlated across space, year, and age dimensions [`sim_ays_covar()`], with strong correlation across ages [`phi_age = 0.8`] but weak correlation across years [`phi_year = 0.1`]; and
+
+    -   adds a parabolic depth 'preference' [`sim_parabola()`] where there is a propensity for fish to occur around 200 meters [`mu = 200, sigma = 30`].
 
 There are several arguments not modified in the example below. As such, defaults are largely used and these settings were based on a cod stock off the south coast of Newfoundland (3Ps cod). So, consider this a simulation for a cod-like species.
 
@@ -115,12 +120,12 @@ dat$offset <- log(dat$tow_area)
 
 Next we will fit the model. In the following code chunk:
 
-- `include_spatial = TRUE` means the model will include a separate spatial random field (a wiggly intercept surface that stays constant through time) and spatiotemporal fields (a random field that varies each year). There's also an option for correlated fields (`ar1_fields = TRUE`).
-- `time = "year"` tells the function which column of data represents the time element and tells the model this is spatiotemporal, not just spatial, data.
-- `silent = FALSE` tells the function to print out TMB progress messages.
-- `offset` is a reserved word in sdmTMB and will be fit with its coefficient fixed at 1.
-- `0 + as.factor(year)` in the formula sets up the model matrix so that there is an independent mean for each year.
-- `spde = mesh` tells it to use our mesh from above.
+-   `include_spatial = TRUE` means the model will include a separate spatial random field (a wiggly intercept surface that stays constant through time) and spatiotemporal fields (a random field that varies each year). There's also an option for correlated fields (`ar1_fields = TRUE`).
+-   `time = "year"` tells the function which column of data represents the time element and tells the model this is spatiotemporal, not just spatial, data.
+-   `silent = FALSE` tells the function to print out TMB progress messages.
+-   `offset` is a reserved word in sdmTMB and will be fit with its coefficient fixed at 1.
+-   `0 + as.factor(year)` in the formula sets up the model matrix so that there is an independent mean for each year.
+-   `spde = mesh` tells it to use our mesh from above.
 
 ```{r fit, message=FALSE, warning=FALSE, results='hide', cache=TRUE}
 fit <- sdmTMB(N ~ 0 + as.factor(year) + offset,
@@ -140,7 +145,7 @@ print(fit)
 
 And extract values from estimated fixed and random effect variables using the `tidy()` method, which follows the broom package convention:
 
-```{r} 
+```{r}
 tidy(fit, conf.int = TRUE)
 tidy(fit, conf.int = TRUE, effects = "ran_pars")
 ```
@@ -173,7 +178,7 @@ grid_dat <- purrr::map_dfr(sort(unique(dat$year)), ~ bind_cols(grid_dat, year = 
 grid_dat$offset <- mean(dat$offset)
 ```
 
-Next we need to predict from our model onto our survey grid. `return_tmb_object = TRUE` tells the function to return a TMB object that is critical for calculating the survey index. If enabled, the result will be a list with the predictions as one element and the TMB object as another. If disabled, the result will just be a prediction data frame. 
+Next we need to predict from our model onto our survey grid. `return_tmb_object = TRUE` tells the function to return a TMB object that is critical for calculating the survey index. If enabled, the result will be a list with the predictions as one element and the TMB object as another. If disabled, the result will just be a prediction data frame.
 
 The `area` argument represents the area of a grid cell so that the resulting estimate is per m^2^ or km^2^. Here, that is 10 x 10 km. `area` can be a vector if some grid cells overlap land or are partially outside the survey domain.
 
