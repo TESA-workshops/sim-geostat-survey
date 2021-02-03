@@ -259,3 +259,19 @@ ggplot(both, aes(year, N_scaled, group = type)) +
   scale_fill_manual(values = c("Model-based" = "grey30", "Design-based" = "steelblue", "True" = "red")) +
   scale_size_manual(values = c("Model-based" = 0.5, "Design-based" = 0.5, "True" = 1))
 ```
+
+# Questions / potential next steps
+
+-   [ ] Does including a covariate - e.g., spline(depth) - increase precision, estimate the right depth relationship, and maintain an unbiased index with greater precision (compared to not including any covariates)? Are there scenarios where that is or isn't the case?
+
+-   [ ] If we throw out a spatial rectangle of the survey - e.g. multiple strata, half the survey area - in some years, can the model recover the index?
+
+-   [ ] Does using an AR1 spatiotemporal field (without factor levels for years) constrain the model too much and result in hyperstability?
+
+-   [ ] If the catchability of a survey changed along the time series, say the gear was changed and there was one year of calibration overlap, could the model estimate the q offset and provide unbiased estimates of the population available to the contemporary survey as if those gear were used the whole time?
+
+-   [ ] If two surveys with different catchabilities are conducted in parallel at neighboring divisions, could a model 'stitch' these surveys together to provide a unified estimate of the population?
+
+-   [ ] Are there survey designs that result in the model-based index being more or less precise than the design based index?
+
+-   [ ] Can we obtain an index at age using a geostastical model?
