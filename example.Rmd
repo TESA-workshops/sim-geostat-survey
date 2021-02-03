@@ -15,8 +15,10 @@ library(sdmTMB)
 # Population and survey simulation
 
 First we will simulate a spatial, age-structured population with SimSurvey. In short, here is what is going on in the following chunk:
-  - `sim_abundance()` is using a cohort equation to simulate an age-structure population including ages 1 to 20 [`ages = seq(1, 20)`], across 10 years [`years = seq(1, 10)`]
-  - `sim_distribution()` is distributing the age-structured population over a square grid [`make_grid()`] with a cell resolution of 10 x 10 km [`res = c(10, 10)`] and depths between 10 to 500 m [`depth_range = c(10, 500))`]. Noise correlated across space, year, and age dimensions is added [`sim_ays_covar()`], with strong correlation across ages [`phi_age = 0.8`] but weak correlation across years [`phi_year = 0.1`]. A parabolic depth 'preference' is also simulated [`sim_parabola()`] where there is a propensity for fish to occur around 200 meters [`mu = 200, sigma = 30`].
+  - `sim_abundance()` is using a cohort equation to simulate an age-structured population including ages 1 to 20 [`ages = seq(1, 20)`], across 10 years [`years = seq(1, 10)`]
+  - `sim_distribution()` is distributing the age-structured population over a square grid [`make_grid()`] with a cell resolution of 10 x 10 km [`res = c(10, 10)`] and depths between 10 to 500 m [`depth_range = c(10, 500))`]. 
+     - Noise correlated across space, year, and age dimensions is added [`sim_ays_covar()`], with strong correlation across ages [`phi_age = 0.8`] but weak correlation across years [`phi_year = 0.1`].
+     - A parabolic depth 'preference' is also simulated [`sim_parabola()`] where there is a propensity for fish to occur around 200 meters [`mu = 200, sigma = 30`].
 
 There are several arguments not modified in the example below. As such, defaults are largely used and these settings were based on a cod stock off the south coast of Newfoundland (3Ps cod). So, consider this a simulation for a cod-like species.
 
@@ -38,14 +40,14 @@ df_sim <- as_tibble(sim$sp_N)
 df_sim <- left_join(df_sim, xy_sim, by = "cell")
 ```
 
-Next we will conduct a survey on our simulated population using the `sim_survey()` function. By default, this function applies stratified random sampling of a survey with a catchability defined using a logistic curve [`sim_logistic`]. We will work with a single replicate for simplicity. We will also add results from a stratified analysis to the output [`run_strat()`] for later comparisons to model-based estimates.
+Next we will conduct a survey on our simulated population using the `sim_survey()` function. By default, this function applies stratified random sampling of a survey with a catchability defined using a logistic curve [`sim_logistic()`]. We will work with a single replicate for simplicity. We will also add results from a stratified analysis to the output [`run_strat()`] for later comparisons to model-based estimates.
 
 ```{r}
 survey <- SimSurvey::sim_survey(sim, q = sim_logistic(), n_sims = 1) %>% 
   SimSurvey::run_strat()
 ```
 
-And, again, we extract some key tables that will be used to analyze and plot the simulated data:
+And, again, we can extract some key tables that will be used to analyze and plot the simulated data:
 
 ```{r}
 xy <- tibble::as_tibble(survey$grid_xy)
@@ -95,7 +97,7 @@ We can make a plot of our mesh:
 plot(mesh)
 ```
 
-And look at how many knots there are. Smaller `cutoff` values (in units x-y coordinate units), will generate more knots. More knots will make for a better approximation at the expense of fitting time.
+And look at how many knots there are. Smaller `cutoff` values (in units x-y coordinate units), will generate more knots. More knots will make for a better approximation at the expense of fitting time. There are other possible meshes and you can use any mesh from INLA.
 
 ```{r}
 mesh$mesh$n
@@ -183,7 +185,7 @@ These are the prediction elements. See `?predict.sdmTMB` for details.
 head(pred$data)
 ```
 
-We can stop to plot the predicted and true known abundance distribution through time. Note that the true abundance row does not account for survey catchability or selectivity in this plot:
+We can stop to plot the predicted and true known abundance distribution through time. Note that the true abundance row does not account for survey catchability or selectivity in this plot. Here, we have scaled them by their geometric means.
 
 ```{r}
 true <- df_sim %>% 
@@ -212,10 +214,9 @@ filter(both, year %in% 1:5) %>%
   scale_fill_viridis_c(limits = quantile(log(both$N_scaled), probs = c(0.05, 1)))
 ```
 
-
 We can pass the output from our prediction into the `get_index()` function. It sums up the abundance in all of the grid cells and calculates standard errors on the result.
 
-There is an option to enable bias correction (`bias_correct = TRUE`) because of the nonlinear transformation of the predictions (exp). This will not have a noticeable difference here because the sampling is relatively constant across space and years, but in some situations it would be important to turn on. It would be much slower, so we will not work with that here.
+There is an option to enable bias correction (`bias_correct = TRUE`) because of the [non-linear transformation](https://www.sciencedirect.com/science/article/abs/pii/S0165783615301399) of the random effects (exp). This will not have a noticeable difference here because the sampling is relatively constant across space and years, but in some situations it would be important to turn on. It would be much slower, so we will not work with that here.
 
 ```{r}
 index <- get_index(pred)
