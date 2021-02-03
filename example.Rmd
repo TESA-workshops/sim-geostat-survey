@@ -274,4 +274,4 @@ ggplot(both, aes(year, N_scaled, group = type)) +
 
 -   [ ] Are there survey designs that result in the model-based index being more or less precise than the design based index?
 
--   [ ] Can we obtain an index at age using a geostastical model?
+-   [ ] Can we obtain an index at age using a geostatistical model?
