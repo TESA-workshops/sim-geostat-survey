@@ -8,6 +8,7 @@ title: "Example of simulating data with SimSurvey and index standardization with
 ```{r, warning=FALSE, message=FALSE}
 library(dplyr)
 library(ggplot2)
+theme_set(theme_minimal())
 library(SimSurvey)
 library(sdmTMB)
 ```
@@ -24,7 +25,7 @@ First we will simulate a spatial, age-structured population with SimSurvey. In s
 There are several arguments not modified in the example below. As such, defaults are largely used and these settings were based on a cod stock off the south coast of Newfoundland (3Ps cod). So, consider this a simulation for a cod-like species.
 
 ```{r}
-set.seed(2849)
+set.seed(42)
 sim <- SimSurvey::sim_abundance(ages = seq(1, 20), years = seq(1, 10)) %>%
   SimSurvey::sim_distribution(
     grid = SimSurvey::make_grid(res = c(10, 10), depth_range = c(10, 500)),
@@ -121,7 +122,7 @@ Next we will fit the model. In the following code chunk:
 - `0 + as.factor(year)` in the formula sets up the model matrix so that there is an independent mean for each year.
 - `spde = mesh` tells it to use our mesh from above.
 
-```{r, message=FALSE, warning=FALSE, results='hide'}
+```{r fit, message=FALSE, warning=FALSE, results='hide', cache=TRUE}
 fit <- sdmTMB(N ~ 0 + as.factor(year) + offset,
               data = dat,
               family = nbinom2(link = "log"), spde = mesh,
@@ -251,6 +252,5 @@ ggplot(both, aes(year, N_scaled, group = type)) +
   labs(x = "Year", y = "Relative abundance", colour = "Type", fill = "Type", size = "Type") +
   scale_color_manual(values = c("Model-based" = "grey30", "Design-based" = "steelblue", "True" = "red")) +
   scale_fill_manual(values = c("Model-based" = "grey30", "Design-based" = "steelblue", "True" = "red")) +
-  scale_size_manual(values = c("Model-based" = 0.5, "Design-based" = 0.5, "True" = 1)) +
-  theme_minimal()
+  scale_size_manual(values = c("Model-based" = 0.5, "Design-based" = 0.5, "True" = 1))
 ```
