@@ -25,15 +25,34 @@ sim_and_fit <- function(iter) {
   grid_dat$offset <- mean(dat$offset)
 
   mesh <- sdmTMB::make_mesh(dat, xy_cols = c("x", "y"), cutoff = 20)
+
   fit <- sdmTMB(N ~ 0 + as.factor(year) + offset,
     data = dat,
     family = nbinom2(link = "log"), spde = mesh,
     include_spatial = TRUE, time = "year"
   )
+  fit_depth <- sdmTMB(N ~ 0 + as.factor(year) + s(depth, k = 3) + offset,
+    data = dat,
+    family = nbinom2(link = "log"), spde = mesh,
+    include_spatial = TRUE, time = "year"
+  )
 
-  pred <- predict(fit, newdata = grid_dat, return_tmb_object = TRUE)
+  # nd <- data.frame(depth = seq(min(dat$depth), max(dat$depth), length.out = 80))
+  # # You'll need at least one time element:
+  # nd$year <- dat$year[1]
+  # nd$offset <- mean(dat$offset)
+  # p <- predict(fit, newdata = nd, se_fit = TRUE, re_form = NA)
+  # ggplot(p, aes(depth, exp(est),
+  #   ymin = exp(est - 1.96 * est_se), ymax = exp(est + 1.96 * est_se))) +
+  #   geom_line() + geom_ribbon(alpha = 0.4)
+  # ggplot(p, aes(depth, est,
+  #   ymin = est - 1.96 * est_se, ymax = est + 1.96 * est_se)) +
+  #   geom_line() + geom_ribbon(alpha = 0.4)
+
   pred <- predict(fit, newdata = grid_dat, return_tmb_object = TRUE, area = 100)
+  pred_depth <- predict(fit_depth, newdata = grid_dat, return_tmb_object = TRUE, area = 100)
   index <- get_index(pred)
+  index_depth <- get_index(pred_depth)
 
   true_abund <- tibble(year = unique(dat$year), N = as.numeric(colSums(survey$I))) %>%
     mutate(type = "True")
@@ -41,6 +60,7 @@ sim_and_fit <- function(iter) {
     mutate(N = total, type = "Design-based") %>%
     select(year, N, type)
   mutate(index, type = "Model-based", N = est) %>%
+    bind_rows(mutate(index_depth, type = "Model-based-depth", N = est)) %>%
     bind_rows(strat_abund) %>%
     bind_rows(true_abund) %>%
     mutate(iter = iter)
@@ -60,18 +80,17 @@ result_scaled <- result %>%
   group_by(type, iter) %>%
   mutate(geo_mean = exp(mean(log(N), na.rm = TRUE)),
     lwr_scaled = lwr / geo_mean, N_scaled = N / geo_mean, upr_scaled = upr / geo_mean,
-    type = factor(type, levels = c("True", "Design-based", "Model-based"))) %>%
+    type = factor(type, levels = c("True", "Design-based", "Model-based", "Model-based-depth"))) %>%
   ungroup() %>%
   arrange(type)
 
 result_scaled %>%
+  group_by(type) %>%
+  mutate(true_index = ifelse("True" %in% type, "yes", "no")) %>%
   ggplot(aes(year, N_scaled, group = type)) +
-  geom_line(aes(colour = type, size = type)) +
+  geom_line(aes(colour = type, lty = true_index)) +
   geom_ribbon(aes(ymin = lwr_scaled, ymax = upr_scaled, fill = type), alpha = 0.3) +
-  labs(x = "Year", y = "Relative abundance", colour = "Type", fill = "Type", size = "Type") +
-  scale_color_manual(values = c("Model-based" = "grey30", "Design-based" = "steelblue", "True" = "red")) +
-  scale_fill_manual(values = c("Model-based" = "grey30", "Design-based" = "steelblue", "True" = "red")) +
-  scale_size_manual(values = c("Model-based" = 0.5, "Design-based" = 0.5, "True" = 1)) +
+  labs(x = "Year", y = "Relative abundance", colour = "Type", fill = "Type") +
   facet_wrap(~iter, scales = "free_y") +
   theme_minimal() + theme(legend.position = "bottom")
 
@@ -87,3 +106,17 @@ mean(summary_stats$covered)
 
 ggplot(summary_stats, aes(log(true), log(est))) + geom_point() +
   coord_fixed() + geom_abline(intercept = 0, slope = 1)
+
+summary_stats <- result_scaled %>%
+  group_by(year, iter) %>%
+  summarise(
+    est_lwr = lwr_scaled[type == "Model-based-depth"],
+    est_upr = upr_scaled[type == "Model-based-depth"],
+    est = N_scaled[type == "Model-based-depth"],
+    true = N_scaled[type == "True"], .groups = "drop") %>%
+  mutate(covered = est_lwr < true & est_upr > true)
+mean(summary_stats$covered)
+
+ggplot(summary_stats, aes(log(true), log(est))) + geom_point() +
+  coord_fixed() + geom_abline(intercept = 0, slope = 1)
+
