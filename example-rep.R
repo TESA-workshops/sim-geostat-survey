@@ -31,7 +31,6 @@ sim_and_fit <- function(iter) {
     include_spatial = TRUE, time = "year"
   )
 
-  pred <- predict(fit, newdata = grid_dat, return_tmb_object = TRUE)
   pred <- predict(fit, newdata = grid_dat, return_tmb_object = TRUE, area = 100)
   index <- get_index(pred)
 
