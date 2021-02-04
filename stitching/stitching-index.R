@@ -20,19 +20,44 @@ sim_and_fit <- function(iter) {
   dat <- left_join(dat, xy, by = c("x", "y"))
   dat$offset <- log(dat$tow_area)
 
+  # catchability by age:
+  # logistic_fun <- sim_logistic(k = 2, x0 = 3, plot = TRUE)
+  # logistic_fun(x = 1:10)
+  # logistic_fun2 <- sim_logistic(k = 2, x0 = 6, plot = TRUE)
+  # logistic_fun2(x = 1:10)
+  # survey2 <- sim_survey(sim, n_sims = 1, q = sim_logistic(x0 = 6)) %>% run_strat()
+
+  # or, more simply, use a scalar q here:
+  survey2 <- sim_survey(sim, n_sims = 1) %>% run_strat()
+  xy2 <- as_tibble(survey2$grid_xy)
+  dat2 <- as_tibble(survey2$setdet) %>%
+    select(x, y, set, year, N = n, tow_area)
+  dat2 <- left_join(dat2, xy2, by = c("x", "y"))
+  dat2$offset <- log(dat2$tow_area)
+  dat2$N <- round(dat2$N * 0.66) # 66% of q from survey "A"
+
   grid_dat <- as_tibble(select(sim$grid_xy, x, y, depth)) %>% distinct()
   grid_dat <- purrr::map_dfr(sort(unique(dat$year)), ~ bind_cols(grid_dat, year = .))
   grid_dat$offset <- mean(dat$offset)
 
-  mesh <- sdmTMB::make_mesh(dat, xy_cols = c("x", "y"), cutoff = 20)
-  fit <- sdmTMB(N ~ 0 + as.factor(year) + offset,
-    data = dat,
+  dat_filtered1 <- dplyr::filter(dat, x > 0) %>% mutate(survey = "A")
+  dat_filtered2 <- dplyr::filter(dat2, x < 0) %>% mutate(survey = "B")
+  dat_combined <- bind_rows(dat_filtered1, dat_filtered2)
+  # ggplot(dat_combined, aes(x, y, colour = survey)) + geom_point() + facet_wrap(~year)
+
+  mesh <- sdmTMB::make_mesh(dat_combined, xy_cols = c("x", "y"), cutoff = 20)
+
+  fit <- sdmTMB(N ~ 0 + as.factor(year) + offset + as.factor(survey),
+    data = dat_combined,
     family = nbinom2(link = "log"), spde = mesh,
     include_spatial = TRUE, time = "year"
   )
-
+  grid_dat$survey <- "A"
   pred <- predict(fit, newdata = grid_dat, return_tmb_object = TRUE, area = 100)
   index <- get_index(pred)
+
+  # extract q ratio estimate:
+  q_hat <- tidy(fit) %>% dplyr::filter(term == "as.factor(survey)B")
 
   true_abund <- tibble(year = unique(dat$year), N = as.numeric(colSums(survey$I))) %>%
     mutate(type = "True")
@@ -42,7 +67,8 @@ sim_and_fit <- function(iter) {
   mutate(index, type = "Model-based", N = est) %>%
     bind_rows(strat_abund) %>%
     bind_rows(true_abund) %>%
-    mutate(iter = iter)
+    mutate(iter = iter) %>%
+    mutate(q_est = q_hat$estimate, q_se = q_hat$std.error)
 }
 
 # sequential:
@@ -86,3 +112,10 @@ mean(summary_stats$covered)
 
 ggplot(summary_stats, aes(log(true), log(est))) + geom_point() +
   coord_fixed() + geom_abline(intercept = 0, slope = 1)
+
+result %>% select(iter, q_est, q_se) %>%
+  distinct() %>%
+  mutate(est = exp(q_est), lwr = exp(q_est - 1.96 * q_se), upr = exp(q_est + 1.96 * q_se)) %>%
+  ggplot(aes(est, iter, xmin = lwr, xmax = upr)) + geom_pointrange() +
+  geom_vline(xintercept = 0.66, lty = 2)
+
