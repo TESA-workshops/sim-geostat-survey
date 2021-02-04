@@ -20,8 +20,7 @@ sim_and_fit <- function(iter) {
   dat <- left_join(dat, xy, by = c("x", "y"))
   dat$offset <- log(dat$tow_area)
 
-  grid <- as_tibble(select(sim$grid_xy, x, y))
-  grid_dat <- tidyr::expand_grid(x = sort(unique(grid$x)), y = sort(unique(grid$y)))
+  grid_dat <- as_tibble(select(sim$grid_xy, x, y, depth)) %>% distinct()
   grid_dat <- purrr::map_dfr(sort(unique(dat$year)), ~ bind_cols(grid_dat, year = .))
   grid_dat$offset <- mean(dat$offset)
 
