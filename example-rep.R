@@ -32,6 +32,7 @@ sim_and_fit <- function(iter) {
   )
 
   pred <- predict(fit, newdata = grid_dat, return_tmb_object = TRUE)
+  pred <- predict(fit, newdata = grid_dat, return_tmb_object = TRUE, area = 100)
   index <- get_index(pred)
 
   true_abund <- tibble(year = unique(dat$year), N = as.numeric(colSums(survey$I))) %>%
