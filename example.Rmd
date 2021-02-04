@@ -213,14 +213,6 @@ ggplot(both, aes(x, y, fill = log(N_scaled))) +
   scale_fill_viridis_c(limits = quantile(log(both$N_scaled), probs = c(0.05, 1)))
 ```
 
-```{r}
-filter(both, year %in% 1:5) %>% 
-  ggplot(aes(x, y, fill = log(N_scaled))) +
-  geom_raster() +
-  facet_grid(type ~ year) +
-  scale_fill_viridis_c(limits = quantile(log(both$N_scaled), probs = c(0.05, 1)))
-```
-
 We can pass the output from our prediction into the `get_index()` function. It sums up the abundance in all of the grid cells and calculates standard errors on the result.
 
 There is an option to enable bias correction (`bias_correct = TRUE`) because of the [non-linear transformation](https://www.sciencedirect.com/science/article/abs/pii/S0165783615301399) of the random effects (exp). This will not have a noticeable difference here because the sampling is relatively constant across space and years, but in some situations it would be important to turn on. It would be much slower, so we will not work with that here.
