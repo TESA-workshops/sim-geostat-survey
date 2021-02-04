@@ -95,7 +95,7 @@ df_sim %>%
 First, we need to set up an SPDE (Stochastic partial differential equation) mesh object via the INLA R package. The important part of this is coming up with a reasonable resolution of "knots" or representative locations that will be modelled. Values in between these knots will be interpolated with bilinear interpolation along the triangles. This approach greatly increases computational efficiency.
 
 ```{r}
-mesh <- sdmTMB::make_mesh(dat, xy_cols = c("x", "y"), cutoff = 15)
+mesh <- sdmTMB::make_mesh(dat, xy_cols = c("x", "y"), cutoff = 20)
 ```
 
 We can make a plot of our mesh:
@@ -270,7 +270,7 @@ ggplot(both, aes(year, N_scaled, group = type)) +
 
 - [ ] If the catchability of a survey changed along the time series, say the gear was changed and there was one year of calibration overlap, could the model estimate the catchability (q) offset and provide unbiased estimates of the population available to the contemporary survey as if those gear were used the whole time?
 
-- [ ] If two surveys with different catchabilities are conducted in parallel at neighboring divisions, could a model 'stitch' these surveys together to provide a unified estimate of the population?
+- [ ] If two surveys with different catchabilities are conducted in parallel at neighbouring divisions, could a model 'stitch' these surveys together to provide a unified estimate of the population?
 
 - [ ] Are there survey designs that result in the model-based index being more or less precise than the design based index?
 
