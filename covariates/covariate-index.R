@@ -4,14 +4,26 @@ library(SimSurvey)
 library(sdmTMB)
 future::plan(future::multisession) # for the furrr package; or `plan(sequential)`
 
+# iter <- 1
+
 sim_and_fit <- function(iter) {
   set.seed(iter * 283028)
   sim <- sim_abundance(ages = seq(1, 10), years = seq(1, 10)) %>%
     sim_distribution(
-      grid = make_grid(res = c(10, 10), depth_range = c(10, 500)),
+      grid = make_grid(res = c(10, 10),
+        # shelf_width = 20,
+        # strat_breaks = seq(0, 1000, by = 200),
+        depth_range = c(10, 500)),
       ays_covar = sim_ays_covar(phi_age = 0.8, phi_year = 0.1),
       depth_par = sim_parabola(mu = 200, sigma = 30)
     )
+
+  # View(sim$grid_xy)
+  # sim$grid_xy %>%
+  #   ggplot(aes(x, y, fill = depth)) +
+  #   geom_raster() +
+  #   scale_fill_viridis_c(#limits=c(150, 300),
+  #     direction = -1)
 
   survey <- sim_survey(sim, n_sims = 1) %>% run_strat()
   xy <- as_tibble(survey$grid_xy)
@@ -24,8 +36,10 @@ sim_and_fit <- function(iter) {
   grid_dat <- purrr::map_dfr(sort(unique(dat$year)), ~ bind_cols(grid_dat, year = .))
   grid_dat$offset <- mean(dat$offset)
 
-  mesh <- sdmTMB::make_mesh(dat, xy_cols = c("x", "y"), cutoff = 20)
 
+
+  mesh <- sdmTMB::make_mesh(dat, xy_cols = c("x", "y"), cutoff = 20)
+  # plot(mesh)
   fit <- sdmTMB(N ~ 0 + as.factor(year) + offset,
     data = dat,
     family = nbinom2(link = "log"), spde = mesh,
