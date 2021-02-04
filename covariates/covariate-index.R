@@ -94,7 +94,8 @@ result_scaled %>%
   facet_wrap(~iter, scales = "free_y") +
   theme_minimal() + theme(legend.position = "bottom")
 
-summary_stats <- result_scaled %>%
+# is true value within the CI of model-based?
+summary_stats1 <- result_scaled %>%
   group_by(year, iter) %>%
   summarise(
     est_lwr = lwr_scaled[type == "Model-based"],
@@ -102,12 +103,10 @@ summary_stats <- result_scaled %>%
     est = N_scaled[type == "Model-based"],
     true = N_scaled[type == "True"], .groups = "drop") %>%
   mutate(covered = est_lwr < true & est_upr > true)
-mean(summary_stats$covered)
+mean(summary_stats1$covered)
 
-ggplot(summary_stats, aes(log(true), log(est))) + geom_point() +
-  coord_fixed() + geom_abline(intercept = 0, slope = 1)
-
-summary_stats <- result_scaled %>%
+# is true value within the CI of model-based with depth?
+summary_stats2 <- result_scaled %>%
   group_by(year, iter) %>%
   summarise(
     est_lwr = lwr_scaled[type == "Model-based-depth"],
@@ -115,8 +114,12 @@ summary_stats <- result_scaled %>%
     est = N_scaled[type == "Model-based-depth"],
     true = N_scaled[type == "True"], .groups = "drop") %>%
   mutate(covered = est_lwr < true & est_upr > true)
-mean(summary_stats$covered)
+mean(summary_stats2$covered)
 
-ggplot(summary_stats, aes(log(true), log(est))) + geom_point() +
+# compare true with predictions as scatter plot
+ggplot(summary_stats1, aes(log(true), log(est))) + geom_point() +
+  coord_fixed() + geom_abline(intercept = 0, slope = 1)
+
+ggplot(summary_stats2, aes(log(true), log(est))) + geom_point() +
   coord_fixed() + geom_abline(intercept = 0, slope = 1)
 
