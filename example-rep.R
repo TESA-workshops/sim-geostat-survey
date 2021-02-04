@@ -45,7 +45,11 @@ sim_and_fit <- function(iter) {
     mutate(iter = iter)
 }
 
-result <- furrr::future_map_dfr(seq_len(16), sim_and_fit,
+# sequential:
+# result <- purrr::map_dfr(seq_len(8), sim_and_fit)
+
+# parallel:
+result <- furrr::future_map_dfr(seq_len(8), sim_and_fit,
   .options = furrr::furrr_options(seed = TRUE))
 
 not_converged <- dplyr::filter(result, (bad_eig | max_gradient > 0.001) & type == "Estimated")
