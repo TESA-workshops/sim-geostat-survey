@@ -71,7 +71,7 @@ result_scaled %>%
   scale_color_manual(values = c("Model-based" = "grey30", "Design-based" = "steelblue", "True" = "red")) +
   scale_fill_manual(values = c("Model-based" = "grey30", "Design-based" = "steelblue", "True" = "red")) +
   scale_size_manual(values = c("Model-based" = 0.5, "Design-based" = 0.5, "True" = 1)) +
-  facet_wrap(~iter, ncol = 3, scales = "free_y") +
+  facet_wrap(~iter, scales = "free_y") +
   theme_minimal() + theme(legend.position = "bottom")
 
 summary_stats <- result_scaled %>%
