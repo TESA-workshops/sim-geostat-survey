@@ -24,15 +24,36 @@ sim_and_fit <- function(iter) {
   grid_dat <- purrr::map_dfr(sort(unique(dat$year)), ~ bind_cols(grid_dat, year = .))
   grid_dat$offset <- mean(dat$offset)
 
-  mesh <- sdmTMB::make_mesh(dat, xy_cols = c("x", "y"), cutoff = 20)
+  dat_filtered <- dplyr::filter(dat, !(x > 0 & y < 0 & year %in% c(2, 4, 8)))
+  # ggplot(dat_filtered, aes(x, y)) + geom_point() + facet_wrap(~year)
+
+  mesh <- sdmTMB::make_mesh(dat_filtered, xy_cols = c("x", "y"), cutoff = 20)
   fit <- sdmTMB(N ~ 0 + as.factor(year) + offset,
-    data = dat,
+    data = dat_filtered,
     family = nbinom2(link = "log"), spde = mesh,
     include_spatial = TRUE, time = "year"
   )
 
-  pred <- predict(fit, newdata = grid_dat, return_tmb_object = TRUE)
   pred <- predict(fit, newdata = grid_dat, return_tmb_object = TRUE, area = 100)
+
+  # # predicted:
+  # ggplot(pred$data, aes(x, y, fill = est)) +
+  #   geom_raster() +
+  #   facet_wrap(vars(year)) +
+  #   scale_fill_viridis_c() +
+  #   geom_point(aes(x, y, size = N), data = dat_filtered, inherit.aes = FALSE, pch = 21)
+  #
+  # # truth:
+  # xy_sim <- as_tibble(sim$grid_xy)
+  # df_sim <- as_tibble(sim$sp_N)
+  # df_sim <- left_join(df_sim, xy_sim, by = "cell")
+  # group_by(df_sim, x, y, year, cell) %>%
+  #   summarise(N = sum(N), .groups = "drop") %>%
+  #   ggplot(aes(x, y, fill = log(N + 1))) +
+  #   geom_raster() +
+  #   facet_wrap(~year) +
+  #   scale_fill_viridis_c()
+
   index <- get_index(pred)
 
   true_abund <- tibble(year = unique(dat$year), N = as.numeric(colSums(survey$I))) %>%
