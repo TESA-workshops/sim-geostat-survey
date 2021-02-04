@@ -8,7 +8,7 @@ output:
     incremental: true
     logo: dfo_logo.png
     css: dfo_style.css
-bibliography: references.bib
+#bibliography: references.bib
 ---
 
 ```{=html}

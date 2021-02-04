@@ -1,8 +1,46 @@
+---
+title: ""
+author: ""
+date: "`r Sys.Date()`"
+link-citations: true
+bibliography: C:/Users/OuellettePJ/Documents/JabRef/References_Jordan.bib
+csl: C:/Users/OuellettePJ/Documents/JabRef/csl/csas-french.csl
+output:
+  html_document:
+    toc: TRUE
+    toc_depth: 2
+    toc_float:
+      collapsed: TRUE
+    theme: united
+    highlight: tango
+    code_folding: show
+    number_sections: TRUE
+  linkcolor: blue
+---
+# Objective
+
+XXXXXXX
+
+# Initialisation
+```{r, echo = F}
+# For the Rmarkdown file
+knitr::opts_chunk$set(echo = T, collapse = T, fig.align = "center", fig.width = 9, fig.height = 6, message = F, warning = F)
+options(width = 120)
+```
+
+## Packages
+```{r, result = F}
 library(dplyr)
 library(ggplot2)
 library(SimSurvey)
 library(sdmTMB)
 future::plan(future::multisession) # for the furrr package; or `plan(sequential)`
+theme_set(theme_bw())
+```
+
+# Function `sim_and_fit`
+```{r}
+iter <- 1
 
 sim_and_fit <- function(iter) {
   set.seed(iter * 283028)
@@ -24,7 +62,7 @@ sim_and_fit <- function(iter) {
 
   # ggplot(dat, aes(x, y)) + geom_point() + facet_wrap(~year) # before
   dat_filtered <- dplyr::filter(dat, !(x > 0 & y < 0 & year %in% c(2, 4, 8)))
-  # ggplot(dat_filtered, aes(x, y)) + geom_point() + facet_wrap(~year) # after
+  # ggplot(dat_filtered, aes(x, y)) + geom_point() + facet_wrap(~ year) # after
 
   mesh <- sdmTMB::make_mesh(dat_filtered, xy_cols = c("x", "y"), cutoff = 20)
   fit <- sdmTMB(N ~ 0 + as.factor(year) + offset,
@@ -65,7 +103,10 @@ sim_and_fit <- function(iter) {
            bind_rows(true_abund) %>%
            mutate(iter = iter)
 }
+```
 
+# Simulations
+```{r}
 # sequential:
 # result <- purrr::map_dfr(seq_len(8), sim_and_fit)
 
@@ -94,7 +135,6 @@ result_scaled %>%
   scale_fill_manual(values = c("Model-based" = "grey30", "Design-based" = "steelblue", "True" = "red")) +
   scale_size_manual(values = c("Model-based" = 0.5, "Design-based" = 0.5, "True" = 1)) +
   facet_wrap(~iter, scales = "free_y") +
-  theme_minimal() +
   theme(legend.position = "bottom")
 
 summary_stats <- result_scaled %>%
@@ -110,5 +150,7 @@ mean(summary_stats$covered)
 ggplot(summary_stats, aes(log(true), log(est))) +
   geom_point() +
   coord_fixed() +
-  geom_abline(intercept = 0, slope = 1) +
-  theme_bw()
+  geom_abline(intercept = 0, slope = 1)
+
+```
+
