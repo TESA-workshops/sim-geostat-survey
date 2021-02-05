@@ -63,7 +63,7 @@ matrix(people, ncol = 3) %>%
 
 # The challenge
 
-**General question:** can geostatistical models solve common survey problems? 
+**General question:** can geostatistical models solve common survey problems?
 
 **Specific focus topics:**
 
@@ -81,7 +81,6 @@ E)  If two surveys with different catchabilities are conducted in parallel at ne
 
 <!-- G)  Can we obtain an index at age using a geostatistical model? -->
 
-
 # Other questions
 
 -   Does using an AR1 spatiotemporal field (without factor levels for years) constrain the model too much and result in hyperstability?
@@ -92,18 +91,23 @@ E)  If two surveys with different catchabilities are conducted in parallel at ne
 
 # Approach taken
 
-1.    Simulate a population and a survey and calculate design-based indices using SimSurvey
-2.    Fit a geostistical model to the simulated survey data using sdmTMB to obtain model-based indices
-3.    Iterate the population simulation and data analysis
-4.    Visually assess the bias and precision of the estimates
-5.    Modify the simulation settings (e.g., impose partial survey coverage) and repeat setps 1-4
-
+1.  Simulate a population and a survey and calculate design-based indices using SimSurvey
+2.  Fit a geostistical model to the simulated survey data using sdmTMB to obtain model-based indices
+3.  Iterate the population simulation and data analysis
+4.  Visually assess the bias and precision of the estimates
+5.  Modify the simulation settings (e.g., impose partial survey coverage) and repeat setps 1-4
 
 # Key points discussed
 
 # Successes
 
+-   Prototype code to help kickstart subgroup explorations
+-   Preliminary results from each subgroup
+
 # Challenges
+
+-   Time
+-   Virtual setting
 
 # How far did we get?
 
