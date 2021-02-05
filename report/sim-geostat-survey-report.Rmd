@@ -84,6 +84,10 @@ E)  If two surveys with different catchabilities are conducted in parallel at ne
 
 # Other questions
 
+-   Does using an AR1 spatiotemporal field (without factor levels for years) constrain the model too much and result in hyperstability?
+-   Are there survey designs that result in the model-based index being more or less precise than the design based index?
+-   If the catchability of a survey changed along the time series, say the gear was changed and there was one year of calibration overlap, could the model estimate the catchability (q) offset and provide unbiased estimates of the population available to the contemporary survey as if those gear were used the whole time?
+-   Can we obtain an index at age using a geostatistical model?
 -   Does the model sufficiently account for spatial correlation and/or is it sufficiently free of assumption so as not to be affected by the stratified sampling design of the survey?
 
 # Approach taken
