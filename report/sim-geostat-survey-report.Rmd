@@ -99,6 +99,10 @@ E)  If two surveys with different catchabilities are conducted in parallel at ne
 
 # Key points discussed
 
+-   The capabilities of SimSurvey and sdmTMB
+-   Tractable topics to explore
+-   Sub-group specific discussions of the focus topics listed in **The challenge** slide
+
 # Successes
 
 -   Prototype code to help kickstart subgroup explorations
@@ -106,7 +110,7 @@ E)  If two surveys with different catchabilities are conducted in parallel at ne
 
 # Challenges
 
--   Time
+-   Time flies
 -   Virtual setting
 
 # How far did we get?
