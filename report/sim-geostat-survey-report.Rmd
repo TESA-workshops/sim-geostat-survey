@@ -135,9 +135,19 @@ E)  If two surveys with different catchabilities are conducted in parallel at ne
 
 -   Time flies
 -   Virtual setting
+-   Black-box effect - reverse engineering what is going on
+-   Computational demands
+-   Visualizing high-dimensional problem / summarizing results
+-   Free-form structure - "This bog is thick and easy to get lost in"
 
 # How far did we get?
 
 # Next steps
 
+-   Use the tools to gain comfortable
+-   Future collaboration to explore important questions
+
 # Expected outcomes
+
+
+
