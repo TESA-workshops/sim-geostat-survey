@@ -76,16 +76,19 @@ sim_and_fit <- function(iter) {
 
 # parallel:
 result <- furrr::future_map_dfr(seq_len(8), sim_and_fit,
-  .options = furrr::furrr_options(seed = TRUE))
+  .options = furrr::furrr_options(seed = TRUE)
+)
 
-not_converged <- dplyr::filter(result, (bad_eig | max_gradient > 0.001) & type == "Estimated")
+not_converged <- dplyr::filter(result, max_gradient > 0.001 & grepl("Model", type))
 stopifnot(nrow(not_converged) == 0L)
 
 result_scaled <- result %>%
   group_by(type, iter) %>%
-  mutate(geo_mean = exp(mean(log(N), na.rm = TRUE)),
+  mutate(
+    geo_mean = exp(mean(log(N), na.rm = TRUE)),
     lwr_scaled = lwr / geo_mean, N_scaled = N / geo_mean, upr_scaled = upr / geo_mean,
-    type = factor(type, levels = c("True", "Design-based", "Model-based"))) %>%
+    type = factor(type, levels = c("True", "Design-based", "Model-based"))
+  ) %>%
   ungroup() %>%
   arrange(type)
 
@@ -98,7 +101,8 @@ result_scaled %>%
   scale_fill_manual(values = c("Model-based" = "grey30", "Design-based" = "steelblue", "True" = "red")) +
   scale_size_manual(values = c("Model-based" = 0.5, "Design-based" = 0.5, "True" = 1)) +
   facet_wrap(~iter, scales = "free_y") +
-  theme_minimal() + theme(legend.position = "bottom")
+  theme_minimal() +
+  theme(legend.position = "bottom")
 
 summary_stats <- result_scaled %>%
   group_by(year, iter) %>%
@@ -106,16 +110,20 @@ summary_stats <- result_scaled %>%
     est_lwr = lwr_scaled[type == "Model-based"],
     est_upr = upr_scaled[type == "Model-based"],
     est = N_scaled[type == "Model-based"],
-    true = N_scaled[type == "True"], .groups = "drop") %>%
+    true = N_scaled[type == "True"], .groups = "drop"
+  ) %>%
   mutate(covered = est_lwr < true & est_upr > true)
 mean(summary_stats$covered)
 
-ggplot(summary_stats, aes(log(true), log(est))) + geom_point() +
-  coord_fixed() + geom_abline(intercept = 0, slope = 1)
+ggplot(summary_stats, aes(log(true), log(est))) +
+  geom_point() +
+  coord_fixed() +
+  geom_abline(intercept = 0, slope = 1)
 
-result %>% select(iter, q_est, q_se) %>%
+result %>%
+  select(iter, q_est, q_se) %>%
   distinct() %>%
   mutate(est = exp(q_est), lwr = exp(q_est - 1.96 * q_se), upr = exp(q_est + 1.96 * q_se)) %>%
-  ggplot(aes(est, iter, xmin = lwr, xmax = upr)) + geom_pointrange() +
+  ggplot(aes(est, iter, xmin = lwr, xmax = upr)) +
+  geom_pointrange() +
   geom_vline(xintercept = 0.66, lty = 2)
-
