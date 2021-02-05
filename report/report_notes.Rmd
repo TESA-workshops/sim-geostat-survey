@@ -7,6 +7,7 @@ title: "Filling the gaps: using simulation to test model-based solutions to surv
 
 Sean Anderson, Pacific Region
 Paul Regular, NL Region
+Jordan Ouellette-Plante, Quebec Region
 
 # The challenge
 

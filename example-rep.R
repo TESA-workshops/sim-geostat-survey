@@ -28,7 +28,7 @@ sim_and_fit <- function(iter) {
   fit <- sdmTMB(N ~ 0 + as.factor(year) + offset,
     data = dat,
     family = nbinom2(link = "log"), spde = mesh,
-    include_spatial = TRUE, time = "year"
+    include_spatial = TRUE, time = "year", silent = FALSE
   )
 
   pred <- predict(fit, newdata = grid_dat, return_tmb_object = TRUE, area = 100)
@@ -52,7 +52,7 @@ sim_and_fit <- function(iter) {
 result <- furrr::future_map_dfr(seq_len(8), sim_and_fit,
   .options = furrr::furrr_options(seed = TRUE))
 
-not_converged <- dplyr::filter(result, (bad_eig | max_gradient > 0.001) & type == "Estimated")
+not_converged <- dplyr::filter(result, (bad_eig | max_gradient > 0.001) & type == "Model-based")
 stopifnot(nrow(not_converged) == 0L)
 
 result_scaled <- result %>%
