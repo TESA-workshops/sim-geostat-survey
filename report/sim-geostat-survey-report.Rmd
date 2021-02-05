@@ -108,6 +108,29 @@ E)  If two surveys with different catchabilities are conducted in parallel at ne
 -   Prototype code to help kickstart subgroup explorations
 -   Preliminary results from each subgroup
 
+# Preliminary results from sub-groups
+
+
+# Covariates - Philina
+
+<!-- insert notes and plots from covariates sub-group -->
+
+
+# Stitching - Quang
+
+<!-- insert notes and plots from stitching sub-group -->
+
+
+# Coverage - Kotaro
+
+<!-- insert notes and plots from Kotaro's coverage sub-group -->
+
+
+# Covariates - Dan
+
+<!-- insert notes and plots from Dan's covariates sub-group -->
+
+
 # Challenges
 
 -   Time flies
