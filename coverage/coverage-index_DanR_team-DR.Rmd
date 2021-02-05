@@ -62,14 +62,17 @@ sim_only <- function(iter, n_missing_strata=4) {
   survey$setdet <- survey$setdet[!logic1,]
   strat.missing <- survey %>% run_strat() ## stratified analysis after dropping strata
   
+  
+  
   return(list(strat=strat, strat.missing=strat.missing))
   
 }
 
-sim.1 <- sim_only(1, n_missing_strata=4)
+sim.1 <- sim_only(1, n_missing_strata=5)
 
-colSums(sim.1$strat$N) == colSums(sim.1$strat.missing$N)
-## not what I was expecting!
+plot(sim.1$strat$total_strat$mean, type='b')
+lines(sim.1$strat.missing$total_strat$mean, type='b', col="red")
+# lines(colSums(sim.1$strat$N) / (1E07), type='l', col="black", lwd=2)
 
 ```
 
