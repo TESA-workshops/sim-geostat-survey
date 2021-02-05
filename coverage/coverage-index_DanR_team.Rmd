@@ -3,8 +3,6 @@ title: ""
 author: ""
 date: "`r Sys.Date()`"
 link-citations: true
-bibliography: C:/Users/OuellettePJ/Documents/JabRef/References_Jordan.bib
-csl: C:/Users/OuellettePJ/Documents/JabRef/csl/csas-french.csl
 output:
   html_document:
     toc: TRUE
@@ -49,8 +47,10 @@ sim_and_fit <- function(iter) {
                           ays_covar = sim_ays_covar(phi_age = 0.8, phi_year = 0.1),
                           depth_par = sim_parabola(mu = 200, sigma = 30))
 
-  g <- sim$grid_xy %>% 
-    ggplot(aes(x=x, y=y)) + geom_point(aes(col=as.factor(strat))) + scale_color_viridis_d()
+  #ggplot(data = sim$grid_xy, aes(x = x, y = y, col = depth)) + geom_point() + scale_color_viridis_c()
+  #ggplot(data = sim$grid_xy, aes(x = x, y = y, col = as.factor(strat))) + geom_point() + scale_color_viridis_d()
+  #sim$grid_xy %>% group_by(strat) %>% count
+
   
   survey <- sim_survey(sim, n_sims = 1) %>% run_strat()
   xy <- as_tibble(survey$grid_xy)
@@ -58,15 +58,18 @@ sim_and_fit <- function(iter) {
          select(x, y, set, year, N = n, tow_area) %>%
          left_join(., xy, by = c("x", "y")) %>%
          mutate(offset = log(tow_area))
+  table(dat$strat, useNA = "always")
+  #dat %>% group_by(year, strat, drop = F) %>% count %>% as.data.frame %>% filter(n == 0)
 
   grid_dat <- as_tibble(select(sim$grid_xy, x, y, depth)) %>% distinct()
   grid_dat <- purrr::map_dfr(sort(unique(dat$year)), ~ bind_cols(grid_dat, year = .))
   grid_dat$offset <- mean(dat$offset)
+  
+  # sort(unique(dat$strat))
 
   # ggplot(dat, aes(x, y)) + geom_point() + facet_wrap(~year) # before
-  # dat_filtered <- dplyr::filter(dat, !(x > 0 & y < 0 & year %in% c(2, 4, 8)))
-  missing_strat <- sample(unique(sim$grid_xy$strat), 3, replace=FALSE)
-  dat_filtered <- dplyr::filter(dat, !(strat %in% missing_strat & year %in% c(2, 4, 8)))
+  cor <- which(!with(dat, year %in% c(2,6,8) & strat > 20)); length(cor) # 1564
+  dat_filtered <- dat[cor, ]
   # ggplot(dat_filtered, aes(x, y)) + geom_point() + facet_wrap(~ year) # after
 
   mesh <- sdmTMB::make_mesh(dat_filtered, xy_cols = c("x", "y"), cutoff = 20)
@@ -83,14 +86,14 @@ sim_and_fit <- function(iter) {
   #   facet_wrap(vars(year)) +
   #   scale_fill_viridis_c() +
   #   geom_point(aes(x, y, size = N), data = dat_filtered, inherit.aes = FALSE, pch = 21)
-  #
+  # 
   # # truth:
   # xy_sim <- as_tibble(sim$grid_xy)
   # df_sim <- as_tibble(sim$sp_N)
   # df_sim <- left_join(df_sim, xy_sim, by = "cell") %>%
   #           group_by(x, y, year, cell) %>%
   #           summarise(N = sum(N), .groups = "drop")
-  #
+  # 
   # ggplot(df_sim, aes(x, y, fill = log(N + 1))) +
   #   geom_raster() +
   #   facet_wrap(~year) +
@@ -117,8 +120,10 @@ sim_and_fit <- function(iter) {
 
 # parallel:
 result <- furrr::future_map_dfr(seq_len(8), sim_and_fit, .options = furrr::furrr_options(seed = TRUE))
+# summary(result)
 
-not_converged <- dplyr::filter(result, (bad_eig | max_gradient > 0.001) & type == "Estimated")
+not_converged <- dplyr::filter(result, (bad_eig | max_gradient > 0.001) & type == "Model-based")
+# some of the diagnostic criteria threshold. If the hessian matrix is not positive definate, it's a sign of non-converence
 stopifnot(nrow(not_converged) == 0L)
 
 result_scaled <- result %>%
@@ -132,7 +137,7 @@ result_scaled <- result %>%
                  arrange(type)
 
 result_scaled %>%
-  ggplot(aes(year, N_scaled, group = type)) +
+  ggplot(aes(as.factor(year), N_scaled, group = type)) +
   geom_line(aes(colour = type, size = type)) +
   geom_ribbon(aes(ymin = lwr_scaled, ymax = upr_scaled, fill = type), alpha = 0.3) +
   labs(x = "Year", y = "Relative abundance", colour = "Type", fill = "Type", size = "Type") +
@@ -141,6 +146,8 @@ result_scaled %>%
   scale_size_manual(values = c("Model-based" = 0.5, "Design-based" = 0.5, "True" = 1)) +
   facet_wrap(~iter, scales = "free_y") +
   theme(legend.position = "bottom")
+
+
 
 summary_stats <- result_scaled %>%
                  group_by(year, iter) %>%
