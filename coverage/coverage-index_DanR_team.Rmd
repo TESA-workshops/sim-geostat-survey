@@ -49,6 +49,9 @@ sim_and_fit <- function(iter) {
                           ays_covar = sim_ays_covar(phi_age = 0.8, phi_year = 0.1),
                           depth_par = sim_parabola(mu = 200, sigma = 30))
 
+  g <- sim$grid_xy %>% 
+    ggplot(aes(x=x, y=y)) + geom_point(aes(col=as.factor(strat))) + scale_color_viridis_d()
+  
   survey <- sim_survey(sim, n_sims = 1) %>% run_strat()
   xy <- as_tibble(survey$grid_xy)
   dat <- as_tibble(survey$setdet) %>%
@@ -61,7 +64,9 @@ sim_and_fit <- function(iter) {
   grid_dat$offset <- mean(dat$offset)
 
   # ggplot(dat, aes(x, y)) + geom_point() + facet_wrap(~year) # before
-  dat_filtered <- dplyr::filter(dat, !(x > 0 & y < 0 & year %in% c(2, 4, 8)))
+  # dat_filtered <- dplyr::filter(dat, !(x > 0 & y < 0 & year %in% c(2, 4, 8)))
+  missing_strat <- sample(unique(sim$grid_xy$strat), 3, replace=FALSE)
+  dat_filtered <- dplyr::filter(dat, !(strat %in% missing_strat & year %in% c(2, 4, 8)))
   # ggplot(dat_filtered, aes(x, y)) + geom_point() + facet_wrap(~ year) # after
 
   mesh <- sdmTMB::make_mesh(dat_filtered, xy_cols = c("x", "y"), cutoff = 20)
@@ -154,3 +159,69 @@ ggplot(summary_stats, aes(log(true), log(est))) +
 
 ```
 
+Investigate ways to deal with missing stratum-year combinations.
+```{r }
+sim_only <- function(iter) {
+  set.seed(iter * 283028)
+  sim <- sim_abundance(ages = seq(1, 10), years = seq(1, 10)) %>%
+         sim_distribution(grid = make_grid(res = c(10, 10), depth_range = c(10, 500)),
+                          ays_covar = sim_ays_covar(phi_age = 0.8, phi_year = 0.1),
+                          depth_par = sim_parabola(mu = 200, sigma = 30))
+
+  g <- sim$grid_xy %>% 
+    ggplot(aes(x=x, y=y)) + geom_point(aes(col=as.factor(strat))) + scale_color_viridis_d()
+  
+  survey <- sim_survey(sim, n_sims = 1) %>% run_strat()
+  xy <- as_tibble(survey$grid_xy)
+  dat <- as_tibble(survey$setdet) %>%
+         select(x, y, set, year, N = n, tow_area) %>%
+         left_join(., xy, by = c("x", "y")) %>%
+         mutate(offset = log(tow_area))
+
+  grid_dat <- as_tibble(select(sim$grid_xy, x, y, depth)) %>% distinct()
+  grid_dat <- purrr::map_dfr(sort(unique(dat$year)), ~ bind_cols(grid_dat, year = .))
+  grid_dat$offset <- mean(dat$offset)
+
+  # ggplot(dat, aes(x, y)) + geom_point() + facet_wrap(~year) # before
+  # dat_filtered <- dplyr::filter(dat, !(x > 0 & y < 0 & year %in% c(2, 4, 8)))
+  missing_strat <- sample(unique(sim$grid_xy$strat), 3, replace=FALSE)
+  dat_filtered <- dplyr::filter(dat, !(strat %in% missing_strat & year %in% c(2, 4, 8)))
+}
+
+## what are we missing? 
+sim.it1 <- sim_only(1)
+sim.it1 %>% group_by(year, strat) %>% count
+table(sim.it1$strat, sim.it1$year)
+## 
+
+all.poss <- expand.grid(year=unique(sim.it1$year), strat=unique(sim.it1$strat))
+for.glm <- merge(all.poss, sim.it1, by=c("year","strat"), all.x=T)
+for.glm[is.na(for.glm$N),"N"] <- 0
+for.glm$non_zero <- for.glm$N!=0
+
+aggregate(N~strat, for.glm, mean) ## some strata have zero catch
+
+## hurdle model
+m1 <- glm(non_zero ~ -1 + as.factor(strat), data = for.glm, family = binomial(link = logit))
+library(MASS)
+m2 <- glm.nb(N ~ as.factor(year) + as.factor(strat), data = subset(for.glm, non_zero == T))
+
+bin_coef <- plogis(coef(m1)[[1]])
+gamma_coef <- exp(coef(m2)[[1]])
+
+pred <- exp(log(bin_coef) + log(gamma_coef))
+
+strat.missing <- c(9,10,22)
+year.missing <- c(2,4,8)
+pred.df <- expand.grid(year=year.missing, strat=strat.missing)
+
+tt.m1 <- predict(m1, newdata=pred.df)
+tt.m2 <- predict(m2, newdata=pred.df)
+pred.df$pred <- plogis(tt.m1)*exp(tt.m2)
+
+res.it1 <- result_scaled[result_scaled$iter==1,]
+
+sim.it1[1,]
+
+
+```

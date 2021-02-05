@@ -1,0 +1,85 @@
+---
+title: ""
+author: ""
+date: "`r Sys.Date()`"
+link-citations: true
+bibliography: C:/Users/OuellettePJ/Documents/JabRef/References_Jordan.bib
+csl: C:/Users/OuellettePJ/Documents/JabRef/csl/csas-french.csl
+output:
+  html_document:
+    toc: TRUE
+    toc_depth: 2
+    toc_float:
+      collapsed: TRUE
+    theme: united
+    highlight: tango
+    code_folding: show
+    number_sections: TRUE
+  linkcolor: blue
+---
+# Objective
+
+XXXXXXX
+
+# Initialisation
+```{r, echo = F}
+# For the Rmarkdown file
+knitr::opts_chunk$set(echo = T, collapse = T, fig.align = "center", fig.width = 9, fig.height = 6, message = F, warning = F)
+options(width = 120)
+```
+
+## Packages
+```{r, result = F}
+library(dplyr)
+library(ggplot2)
+library(SimSurvey)
+library(sdmTMB)
+theme_set(theme_bw())
+```
+
+
+Investigate ways to deal with missing stratum-year combinations.
+
+```{r }
+sim_only <- function(iter, n_missing_strata=4) {
+  set.seed(iter * 283028)
+  sim <- sim_abundance(ages = seq(1, 10), years = seq(1, 10)) %>%
+         sim_distribution(grid = make_grid(res = c(10, 10), depth_range = c(10, 500)),
+                          ays_covar = sim_ays_covar(phi_age = 0.8, phi_year = 0.1),
+                          depth_par = sim_parabola(mu = 200, sigma = 30))
+  
+  g <- sim$grid_xy %>% 
+    ggplot(aes(x=x, y=y)) + geom_point(aes(col=as.factor(strat))) + scale_color_viridis_d()
+  
+  ##
+  ## strata.stats <- aggregate(cell~strat, data=sim$grid_xy, length)
+  ## strata.stats$n.cells <- sum(strata.stats$cell)
+  ## strata.stats$prop.strat <- strata.stats$cell / strata.stats$n.cells
+  
+  survey <- sim_survey(sim, n_sims = 1) 
+  strat <- survey %>% run_strat()
+  
+  
+  ## if n_missing_strata > 0, run another survey but with the missing year-stratum combinations
+  
+  xy <- as_tibble(survey$grid_xy)
+  dat <- as_tibble(survey$setdet) %>%
+         select(x, y, set, year, N = n, tow_area) %>%
+         left_join(., xy, by = c("x", "y")) %>%
+         mutate(offset = log(tow_area))
+
+  grid_dat <- as_tibble(select(sim$grid_xy, x, y, depth)) %>% distinct()
+  grid_dat <- purrr::map_dfr(sort(unique(dat$year)), ~ bind_cols(grid_dat, year = .))
+  grid_dat$offset <- mean(dat$offset)
+
+  # ggplot(dat, aes(x, y)) + geom_point() + facet_wrap(~year) # before
+  # dat_filtered <- dplyr::filter(dat, !(x > 0 & y < 0 & year %in% c(2, 4, 8)))
+  missing_strat <- sample(unique(sim$grid_xy$strat), n_missing_strata, replace=FALSE)
+  dat_filtered <- dplyr::filter(dat, !(strat %in% missing_strat & year %in% c(7,8)))
+  if(n_missing_strata==0) return(list(dat=dat, strat=strat)) else {return(list(dat=dat_filtered, strat=strat))}
+  
+}
+
+sim.1 <- sim_only(1, n_missing_strata=0)
+sim.missing.1 <- sim_only(1, n_missing_strata=4)
+
