@@ -123,8 +123,50 @@ E)  If two surveys with different catchabilities are conducted in parallel at ne
 
 # Coverage - Kotaro
 
-<!-- insert notes and plots from Kotaro's coverage sub-group -->
+# Participants
+-   Kotaro Ono
+-   Hajas Wayne
+-   Fatemeh Hatefi
+-   Burton Meghan
+-   Van Beveren Elisabeth
+-   Obradovich, Shannon
+-   Kumar Rajeev
 
+# Challenge
+In general, looking at the influence of varying spatial coverage in survey design
+
+
+# Approach taken
+-   Examine the different scenarios of imperfect spatial coverage​
+-   Start coding! (thanks Kotaro)​
+-   Spend some time understanding the functions and their arguments​
+-   Added arguments to function of Sean and ran all the scenarios we were interest in
+
+# Key points discussed
+-   Various scenarios of coverage and the factors that influence them​
+-   Population density​
+-   Population distribution (patchy vs dispersed)​
+-   Sampling density​
+-   Effect of depth​
+-   Temporal correlation in species distribution​
+-   Coding details. How to do it efficiently?
+
+# Successes
+-   Able to come up with scenarios to test and work them out​
+-   Learned more about the package and its flexibility​
+-   Seeing other people code can be a good learning experience (pmap function, purrr)
+
+# Challenges 
+-   Working with a package we are new to​
+-   Tidyverse vs base R​
+-   Have to work with the options available in the package (scenario creation)​
+-   Parallel runs: how to track progress?​
+-   Parallel runs: cpue to 100% and laptop very slow , can we avoid this??​
+-   Summarising results when there are a lot of scenarios​
+-   2 hours to figure out what to do and run it... is not a lot of time
+
+# Next steps
+Simsurvey seems like a great package, but some other features would be helpful (e.g., seasonal component)
 
 # Covariates - Dan
 
