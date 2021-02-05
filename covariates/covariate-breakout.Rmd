@@ -123,10 +123,11 @@ Fit model with a fixed spatial field that might account for depth even without a
     include_spatial = TRUE,
     time = "year"
   )
-
-print(fit)
 ```
 
+```{r}
+print(fit)
+```
 
 Fit model with depth, but without a fixed spatial field
 ```{r fit-depth, message=FALSE, warning=FALSE, results='hide', cache=TRUE}
@@ -137,12 +138,10 @@ Fit model with depth, but without a fixed spatial field
     # include_spatial = TRUE,
     time = "year"
   )
-
-print(fit_depth)
 ```
 
 ```{r}
-
+print(fit_depth)
 ```
 
 
@@ -165,21 +164,20 @@ nd <- data.frame(depth = seq(min(dat$depth), max(dat$depth), length.out = 80))
     geom_line(data = tru_curve, aes(y=y, x = x),
       colour = "red", linetype = "dashed",
       inherit.aes = F)
-
 ```
 
 
 And extract values from estimated fixed and random effect variables using the `tidy()` method, which follows the broom package convention:
 
 ```{r}
-tidy(fit, conf.int = TRUE)
-tidy(fit, conf.int = TRUE, effects = "ran_pars")
+tidy(fit_depth, conf.int = TRUE)
+tidy(fit_depth, conf.int = TRUE, effects = "ran_pars")
 ```
 
 We can look at residuals:
 
 ```{r}
-dat$resid <- residuals(fit)
+dat$resid <- residuals(fit_depth)
 
 ggplot(dat, aes(x, y, colour = resid, size = abs(resid))) +
   geom_point() +
@@ -239,27 +237,31 @@ result_scaled %>%
 
 # Use part of an actual grid, but make new strata based on depth 
 ```{r}
-# plot_grid(survey_grid)
+plot_grid(survey_grid)
+# survey_trim <- crop(survey_grid,
+#   extent(400,550,5100,5250))
+# 
+# values(survey_trim$strat) <- as.numeric(cut(values(survey_trim$depth), seq(0, 1000, by = 100)))
+
 survey_trim <- crop(survey_grid,
-  extent(400,550,5100,5250))
+  extent(500,700,4953,5150))
 
-values(survey_trim$strat) <- as.numeric(cut(values(survey_trim$depth), seq(0, 1000, by = 100)))
-
-plot_grid(survey_trim) + scale_fill_viridis_c(direction = -1)
+values(survey_trim$strat) <- as.numeric(cut(values(survey_trim$depth), seq(0, 1000, by = 150)))
+plot_grid(survey_trim) 
 ```
 
 More variability in depth means a wider depth preference possible now
 ```{r}
-set.seed(32)
+set.seed(42)
  sim <- sim_abundance(ages = seq(1, 10), years = seq(1, 10)) %>%
     sim_distribution(
       grid = survey_trim, 
       ays_covar = sim_ays_covar(
-        sd = 2, #2.8 is default
+        sd = 2.8, #2.8 is default
         #lambda = 1, # 1 is default, changes degree of smoothness
-        range = 80, # make less spatial correlation, from default of 300
+        range = 150, # make less spatial correlation, from default of 300
         phi_age = 0.8, phi_year = 0.1),
-      depth_par = sim_parabola(mu = 200, sigma = 25, plot = F) # simga = 30 was example
+      depth_par = sim_parabola(mu = 200, sigma = 30, plot = F) # simga = 30 was example
     )
 ```
 
@@ -279,7 +281,7 @@ sim$sp_N %>% left_join(sim$grid_xy) %>%
 Then we simulate survey samples from this population
 
 ```{r}
-  survey <- sim_survey(sim, n_sims = 1, min_sets = 20
+  survey <- sim_survey(sim, n_sims = 1, min_sets = 1, set_den = 5/1000
     ) %>% run_strat()
   xy <- as_tibble(survey$grid_xy)
   dat <- as_tibble(survey$setdet) %>%
@@ -308,29 +310,26 @@ ggplot(dat, aes(x, y, colour = log(N + 1), size = N)) +
 
 ```{r}
 mesh <- sdmTMB::make_mesh(dat, xy_cols = c("x", "y"), cutoff = 20)
-```
-
-We can make a plot of our mesh:
-
-```{r}
 plot(mesh)
 ```
 
 Fit model with a fixed spatial field that might account for depth even without a true depth covariate
-```{r fit, message=FALSE, warning=FALSE, results='hide', cache=TRUE}
+```{r fit2, message=FALSE, warning=FALSE, results='hide', cache=TRUE}
   fit2 <- sdmTMB(N ~ 0 + as.factor(year) + offset,
     data = dat,
     family = nbinom2(link = "log"), spde = mesh,
     include_spatial = TRUE,
     time = "year"
   )
+```
 
+```{r}
 print(fit2)
 ```
 
 
 Fit model with depth, but without a fixed spatial field
-```{r fit-depth, message=FALSE, warning=FALSE, results='hide', cache=TRUE}
+```{r fit-depth2, message=FALSE, warning=FALSE, results='hide', cache=TRUE}
  fit_depth2 <- sdmTMB(N ~ 0 + as.factor(year) + s(depth, k = 3) +
       offset,
     data = dat,
@@ -338,7 +337,9 @@ Fit model with depth, but without a fixed spatial field
     # include_spatial = TRUE,
     time = "year"
   )
+```
 
+```{r}
 print(fit_depth2)
 ```
 
@@ -353,16 +354,15 @@ nd$offset <- mean(dat$offset)
     newdata = filter(nd, year == nd$year[1]),
     se_fit = TRUE, re_form = NA)
   
- y <- sim_parabola(mu = 200, sigma = 25, plot=F)(x = 50:500)
-  tru_curve <- data.frame(x = 50:500, y)  
+ y <- sim_parabola(mu = 200, sigma = 30, plot=F)(x = 50:750)
+  tru_curve <- data.frame(x = 50:750, y)  
 
   ggplot(p2, aes(depth, est,
     ymin = est - 1.96 * est_se, ymax = est + 1.96 * est_se)) +
     geom_line() + geom_ribbon(alpha = 0.4) +
     geom_line(data = tru_curve, aes(y=y, x = x),
-      colour = "red", linetype = "dashed",
-      inherit.aes = F)
-
+      colour = "red", linetype = "dashed", size = 1.5,
+      inherit.aes = F) + scale_linetype()
 ```
 
 
@@ -432,6 +432,42 @@ result_scaled %>%
   # facet_wrap(~iter, scales = "free_y") +
   theme_minimal() + theme(legend.position = "bottom")
 
+```
+
+
+```{r}
+true <- sim$sp_N %>% left_join(sim$grid_xy) %>%
+  group_by(x, y, year, cell) %>% 
+  summarise(N = sum(N), .groups = "drop")  %>%
+  dplyr::select(x, y, year, N) %>%
+  mutate(type = "True")
+
+fitted <- pred_depth$data %>%
+  dplyr::select(x, y, year, est) %>%
+  mutate(type = "Predicted") %>%
+  mutate(N = exp(est))
+
+both <- bind_rows(true, fitted) %>%
+  group_by(type) %>%
+  mutate(
+    N_mean = exp(mean(log(N))),
+    N_scaled = N / N_mean
+    )
+
+# View(both)
+
+both %>% filter(year >4) %>%
+ggplot(aes(x, y, fill = log(N_scaled))) +
+  geom_tile() +
+  facet_grid(type ~ year) +
+  scale_fill_viridis_c(
+    # option = "B",
+    # end= 0.9,
+    # trans = gfranges::fourth_root_power,
+    limits = #c(-35, 25),
+      quantile(log(both$N_scaled), probs = c(0.025, 1)),
+    na.value = "black"
+    )
 ```
 
 
