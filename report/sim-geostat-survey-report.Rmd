@@ -116,7 +116,38 @@ E)  If two surveys with different catchabilities are conducted in parallel at ne
 <!-- insert notes and plots from covariates sub-group -->
 
 
-# Stitching - Quang
+# Stitching - Quang {.columns=2}
+
+- 1: Surveys A and B each sample different areas in each year
+- 2: Surveys A and B each sample different areas in alternate years
+- 3: Surveys A and B each sample different areas in alternate years, both sample their respective areas in terminal year
+- 4: Same as #3, also compare to situation where survey A samples entire stock area at half the set density (same effort)
+- 5: Surveys A and B each sample different areas in alternate years, both sample the same area in terminal year 
+- 6: Same vessel samples different areas in alternating years, one year, both surveys sample both areas in terminal year
+
+- Catchability differ between surveys
+
+# Alternating surveys in alternate years with a calibrating year (Q3-4)
+
+![](../stitching/stitched_design.png)
+
+# Alternating surveys in alternate years (Q2)
+
+![](../stitching/stitch_iter_Q2.png)
+
+# Alternating surveys in alternate years (Q2)
+
+![](../stitching/stitch_iter_with_errorbar_Q2.png)
+
+
+# Alternating surveys in alternate years with a calibrating year, compare to global survey (Q4)
+
+![](../stitching/stitch_iter_Q4.png)
+
+# Alternating surveys in alternate years with a calibrating year, compare to global survey (Q4)
+
+![](../stitching/stitch_iter_with_errorbar_Q4.png)
+
 
 <!-- insert notes and plots from stitching sub-group -->
 
