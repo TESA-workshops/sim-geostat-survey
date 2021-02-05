@@ -92,7 +92,12 @@ E)  If two surveys with different catchabilities are conducted in parallel at ne
 
 # Approach taken
 
--   Use SimSurvey and sdmTMB to explore answers to the questions posed above
+1.    Simulate a population and a survey and calculate design-based indices using SimSurvey
+2.    Fit a geostistical model to the simulated survey data using sdmTMB to obtain model-based indices
+3.    Iterate the population simulation and data analysis
+4.    Visually assess the bias and precision of the estimates
+5.    Modify the simulation settings (e.g., impose partial survey coverage) and repeat setps 1-4
+
 
 # Key points discussed
 
