@@ -114,7 +114,14 @@ E)  If two surveys with different catchabilities are conducted in parallel at ne
 # Covariates - Philina
 
 <!-- insert notes and plots from covariates sub-group -->
+- simulating relationships with depth benefit from realistic depth profiles
+knitr::include_graphics("real-depth-profile.png")
 
+- sdmTMB was able to resolve the underlying depth preference (red = true, black = model prediction)
+knitr::include_graphics("depth-estimate.png")
+
+- adding depth can narrow uncertainty in model based estimates (at least when data available to model is very limited)
+knitr::include_graphics("covariate-sims-w-real-depth.png")
 
 # Stitching - Quang
 
