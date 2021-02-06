@@ -1,0 +1,79 @@
+---
+title: "Dropping strata in certain years"
+author: "Daniel Ricard"
+date: "`r Sys.Date()`"
+link-citations: true
+output:
+  html_document:
+    toc: TRUE
+    toc_depth: 2
+    toc_float:
+      collapsed: TRUE
+    theme: united
+    highlight: tango
+    code_folding: show
+    number_sections: TRUE
+  linkcolor: blue
+---
+# Objective
+
+XXXXXXX
+
+# Initialisation
+```{r, echo = F}
+# For the Rmarkdown file
+knitr::opts_chunk$set(echo = T, collapse = T, fig.align = "center", fig.width = 9, fig.height = 6, message = F, warning = F)
+options(width = 120)
+```
+
+## Packages
+```{r, result = F}
+library(dplyr)
+library(ggplot2)
+library(SimSurvey)
+library(sdmTMB)
+theme_set(theme_bw())
+```
+
+
+Investigate ways to deal with missing stratum-year combinations.
+
+```{r }
+sim_only <- function(iter, n_missing_strata=4) {
+  set.seed(iter * 283028)
+  sim <- sim_abundance(ages = seq(1, 10), years = seq(1, 10)) %>%
+         sim_distribution(grid = make_grid(res = c(10, 10), depth_range = c(10, 500)),
+                          ays_covar = sim_ays_covar(phi_age = 0.8, phi_year = 0.1),
+                          depth_par = sim_parabola(mu = 200, sigma = 30))
+  
+  
+  survey <- sim_survey(sim, n_sims = 1) 
+  strat <- survey %>% run_strat() ## stratified analysis before dropping strata
+  
+  drop.years <- c(6,7,8)
+  keep.years <- setdiff(1:10, drop.years)
+  all.strata <- unique(sim$grid_xy$strat)
+  drop.strata <- sample(all.strata, n_missing_strata, replace=FALSE)
+  keep.strata <- setdiff(all.strata, drop.strata)
+  
+  logic1 <- (survey$setdet$strat %in% drop.strata) & (survey$setdet$year %in% drop.years)
+  
+  if(nrow(survey$setdet) == nrow(survey$setdet[!logic1,])) {print("Trouble!")}
+  survey$setdet <- survey$setdet[!logic1,]
+  strat.missing <- survey %>% run_strat() ## stratified analysis after dropping strata
+  
+  
+  
+  return(list(strat=strat, strat.missing=strat.missing))
+  
+}
+
+sim.1 <- sim_only(1, n_missing_strata=5)
+
+plot(sim.1$strat$total_strat$mean, type='b')
+lines(sim.1$strat.missing$total_strat$mean, type='b', col="red")
+# lines(colSums(sim.1$strat$N) / (1E07), type='l', col="black", lwd=2)
+
+```
+
+

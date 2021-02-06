@@ -39,18 +39,15 @@ theme_set(theme_bw())
 # Function `sim_and_fit`
 ```{r}
 iter <- 1
-
 sim_and_fit <- function(iter) {
   set.seed(iter * 283028)
   sim <- sim_abundance(ages = seq(1, 10), years = seq(1, 10)) %>%
          sim_distribution(grid = make_grid(res = c(10, 10), depth_range = c(10, 500)),
                           ays_covar = sim_ays_covar(phi_age = 0.8, phi_year = 0.1),
                           depth_par = sim_parabola(mu = 200, sigma = 30))
-
   #ggplot(data = sim$grid_xy, aes(x = x, y = y, col = depth)) + geom_point() + scale_color_viridis_c()
   #ggplot(data = sim$grid_xy, aes(x = x, y = y, col = as.factor(strat))) + geom_point() + scale_color_viridis_d()
   #sim$grid_xy %>% group_by(strat) %>% count
-
   
   survey <- sim_survey(sim, n_sims = 1) %>% run_strat()
   xy <- as_tibble(survey$grid_xy)
@@ -60,26 +57,21 @@ sim_and_fit <- function(iter) {
          mutate(offset = log(tow_area))
   table(dat$strat, useNA = "always")
   #dat %>% group_by(year, strat, drop = F) %>% count %>% as.data.frame %>% filter(n == 0)
-
   grid_dat <- as_tibble(select(sim$grid_xy, x, y, depth)) %>% distinct()
   grid_dat <- purrr::map_dfr(sort(unique(dat$year)), ~ bind_cols(grid_dat, year = .))
   grid_dat$offset <- mean(dat$offset)
   
   # sort(unique(dat$strat))
-
   # ggplot(dat, aes(x, y)) + geom_point() + facet_wrap(~year) # before
   cor <- which(!with(dat, year %in% c(2,6,8) & strat > 20)); length(cor) # 1564
   dat_filtered <- dat[cor, ]
   # ggplot(dat_filtered, aes(x, y)) + geom_point() + facet_wrap(~ year) # after
-
   mesh <- sdmTMB::make_mesh(dat_filtered, xy_cols = c("x", "y"), cutoff = 20)
   fit <- sdmTMB(N ~ 0 + as.factor(year) + offset,
                 data = dat_filtered,
                 family = nbinom2(link = "log"), spde = mesh,
                 include_spatial = TRUE, time = "year")
-
   pred <- predict(fit, newdata = grid_dat, return_tmb_object = TRUE, area = 100)
-
   # # predicted:
   # ggplot(pred$data, aes(x, y, fill = est)) +
   #   geom_raster() +
@@ -98,9 +90,7 @@ sim_and_fit <- function(iter) {
   #   geom_raster() +
   #   facet_wrap(~year) +
   #   scale_fill_viridis_c()
-
   index <- get_index(pred)
-
   true_abund <- tibble(year = unique(dat$year), N = as.numeric(colSums(survey$I))) %>% mutate(type = "True")
   strat_abund <- tibble::as_tibble(survey$total_strat) %>%
                  mutate(N = total, type = "Design-based") %>%
@@ -117,15 +107,12 @@ sim_and_fit <- function(iter) {
 ```{r}
 # sequential:
 # result <- purrr::map_dfr(seq_len(8), sim_and_fit)
-
 # parallel:
 result <- furrr::future_map_dfr(seq_len(8), sim_and_fit, .options = furrr::furrr_options(seed = TRUE))
 # summary(result)
-
 not_converged <- dplyr::filter(result, (bad_eig | max_gradient > 0.001) & type == "Model-based")
 # some of the diagnostic criteria threshold. If the hessian matrix is not positive definate, it's a sign of non-converence
 stopifnot(nrow(not_converged) == 0L)
-
 result_scaled <- result %>%
                  group_by(type, iter) %>%
                  mutate(geo_mean = exp(mean(log(N), na.rm = TRUE)),
@@ -135,7 +122,6 @@ result_scaled <- result %>%
                         type = factor(type, levels = c("True", "Design-based", "Model-based"))) %>%
                  ungroup() %>%
                  arrange(type)
-
 result_scaled %>%
   ggplot(aes(as.factor(year), N_scaled, group = type)) +
   geom_line(aes(colour = type, size = type)) +
@@ -146,9 +132,6 @@ result_scaled %>%
   scale_size_manual(values = c("Model-based" = 0.5, "Design-based" = 0.5, "True" = 1)) +
   facet_wrap(~iter, scales = "free_y") +
   theme(legend.position = "bottom")
-
-
-
 summary_stats <- result_scaled %>%
                  group_by(year, iter) %>%
                  summarise(est_lwr = lwr_scaled[type == "Model-based"],
@@ -158,11 +141,8 @@ summary_stats <- result_scaled %>%
                            .groups = "drop") %>%
                  mutate(covered = est_lwr < true & est_upr > true)
 mean(summary_stats$covered)
-
 ggplot(summary_stats, aes(log(true), log(est))) +
   geom_point() +
   coord_fixed() +
   geom_abline(intercept = 0, slope = 1)
-
 ```
-
