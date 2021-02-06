@@ -13,7 +13,7 @@ survey_trim <- crop(survey_grid,
   extent(400,550,5100,5250))
 
 values(survey_trim$strat) <- as.numeric(cut(values(survey_trim$depth), seq(0, 1000, by = 100)))
-# plot_grid(survey_trim)
+plot_grid(survey_trim)
 
 
 sim_and_fit <- function(iter) {
@@ -42,6 +42,7 @@ sim_and_fit <- function(iter) {
   # sim$grid_xy %>%
   #   ggplot(aes(x, y, fill = depth)) +
   #   geom_raster() +
+  #   coord_fixed() +
   #   scale_fill_viridis_c(
   #     #limits=c(150, 250),
   #     direction = -1)
@@ -99,7 +100,7 @@ sim_and_fit <- function(iter) {
     data = dat,
     # time_varying = ~ 0 + poly(depth, 2),
     family = nbinom2(link = "log"), spde = mesh,
-    # include_spatial = TRUE,
+    include_spatial = TRUE,
     time = "year"
   )
 
@@ -181,9 +182,8 @@ result_scaled %>%
   geom_line(aes(colour = type, lty = true_index)) +
   geom_ribbon(aes(ymin = lwr_scaled, ymax = upr_scaled, fill = type), alpha = 0.3) +
   labs(x = "Year", y = "Relative abundance", colour = "Type", fill = "Type") +
-  coord_cartesian(ylim=c(0, 5)) +
-  facet_wrap(~iter, scales = "free_y") +
-  theme_minimal() + theme(legend.position = "bottom")
+  coord_cartesian(ylim=c(0, 6)) +
+  facet_wrap(~iter, scales = "free_y") + theme(legend.position = "bottom")
 
 # is true value within the CI of model-based?
 summary_stats1 <- result_scaled %>%
