@@ -1,6 +1,5 @@
 ---
-title: "Filling the gaps"
-subtitle: "Using simulation to test model-based solutions to survey problems"
+title: "Filling the gaps: using simulation to test model-based solutions to survey problems"
 output:
   bookdown::pdf_document2:
     toc: false
@@ -13,6 +12,7 @@ output:
 library(dplyr)
 library(here)
 ```
+
 # Participants
 
 ```{r echo = FALSE, results='asis'}
@@ -58,7 +58,35 @@ p %>% arrange(last) %>%
 
 # Background
 
+There has been a recent movement towards geostatistical model-based calibration of survey data to assess trends in species abundance and evaluate distribution shifts.
+Such a spatial approach can increase precision compared to design-based approaches and has the potential to account for common survey problems (e.g., gear changes, partial coverage) in calculating indices used in stock assessment.
+Furthermore, geostatistical models provide a framework for integrating data from contiguous surveys, meeting an urgent need to track species across survey domains and geopolitical borders as changing ocean conditions cause distributional shifts.
+However, skepticism about such approaches remains.
+Simulation testing has typically been under ideal conditions (e.g., self-testing with the same underlying model) or non-existent.
+Complications exist such as differing length-selectivity and spatiotemporal coverage.
+
+In this breakout group, we proposed joining two major ongoing software development efforts at DFO---one a simulation tool (SimSurvey) and one a model fitting tool (sdmTMB)---to use simulation testing to address several questions around the use of geostatistical model-based calibration of survey data. Specifically, we proposed four subgroups to address the following questions:
+
+1. Does including a covariate (e.g., depth) increase precision, estimate the right depth relationship, and maintain an unbiased index with greater precision compared to not including any covariates? Are there scenarios where that is or isn't the case?
+
+2. Changes to spatial coverage from year to year: If part of the survey (e.g. multiple strata, half the survey area) is missed in some years, can the model recover the index?
+
+3. If two surveys with different catchabilities are conducted in parallel at neighbouring regions, could a model "stitch" these surveys together to provide a unified estimate of the population?
+
+
 # Methods and results
+
+The general approach taken was to simulate survey data using SimSurvey, fit models to those data using sdmTMB, and then compare the estimated indexes to the known true values over multiple stochastic iterations and under various conditions.
+
+Specifically:
+
+1. Simulate a population and a survey and calculate design-based indices using SimSurvey.
+2. Fit a geostistical model to the simulated survey data using sdmTMB to obtain model-based indices.
+3. Iterate the population simulation and data analysis.
+4. Visually assess the bias and precision of the estimates.
+5. Modify the simulation settings (e.g., impose partial survey coverage) and repeat steps 1--4.
+
+
 
 # Discussion
 
@@ -66,42 +94,6 @@ p %>% arrange(last) %>%
 
 # References
 
-
-# The challenge
-
-**General question:** can geostatistical models solve common survey problems?
-
-**Specific focus topics:**
-
-A)  Including covariates. Does including a covariate (depth) increase precision, estimate the right depth relationship, and maintain an unbiased index with greater precision compared to not including any covariates (or any one of these questions)? Are there scenarios where that is or isn't the case?
-
-B)  Changes to spatial coverage from year to year. E.g. If part of the survey (e.g. multiple strata, half the survey area) is missed in some years, can the model recover the index? This includes "hole" filling.
-
-<!-- C)  Does using an AR1 spatiotemporal field (without factor levels for years) constrain the model too much and result in hyperstability? -->
-
-<!-- D)  If the catchability of a survey changed along the time series, say the gear was changed and there was one year of calibration overlap, could the model estimate the catchability (q) offset and provide unbiased estimates of the population available to the contemporary survey as if those gear were used the whole time? -->
-
-E)  If two surveys with different catchabilities are conducted in parallel at neighbouring divisions, could a model 'stitch' these surveys together to provide a unified estimate of the population?
-
-<!-- F)  Are there survey designs that result in the model-based index being more or less precise than the design based index? -->
-
-<!-- G)  Can we obtain an index at age using a geostatistical model? -->
-
-# Other questions
-
--   Does using an AR1 spatiotemporal field (without factor levels for years) constrain the model too much and result in hyperstability?
--   Are there survey designs that result in the model-based index being more or less precise than the design based index?
--   If the catchability of a survey changed along the time series, say the gear was changed and there was one year of calibration overlap, could the model estimate the catchability (q) offset and provide unbiased estimates of the population available to the contemporary survey as if those gear were used the whole time?
--   Can we obtain an index at age using a geostatistical model?
--   Does the model sufficiently account for spatial correlation and/or is it sufficiently free of assumption so as not to be affected by the stratified sampling design of the survey?
-
-# Approach taken
-
-1.  Simulate a population and a survey and calculate design-based indices using SimSurvey
-2.  Fit a geostistical model to the simulated survey data using sdmTMB to obtain model-based indices
-3.  Iterate the population simulation and data analysis
-4.  Visually assess the bias and precision of the estimates
-5.  Modify the simulation settings (e.g., impose partial survey coverage) and repeat setps 1-4
 
 # Key points discussed
 
