@@ -1,0 +1,216 @@
+---
+title: "Filling the gaps"
+subtitle: "Using simulation to test model-based solutions to survey problems"
+output:
+  bookdown::pdf_document2:
+    toc: false
+    number_sections: false
+    fig_caption: true
+    highlight: "monochrome"
+---
+
+```{r setup, include = FALSE, message=FALSE, warning=FALSE, error=FALSE}
+library(dplyr)
+library(here)
+```
+# Participants
+
+```{r echo = FALSE, results='asis'}
+p <- tribble(~first, ~last, ~affil, ~role,
+"Sean", "Anderson", "DFO Pacific", "Lead",
+"Paul", "Regular", "DFO Newfoundland", "Lead",
+"Alex", "Hanke", "DFO Gulf", "Participant",
+"Brooke", "Biddlecombe", "", "Participant",
+"Dan", "Ricard", "DFO Gulf", "Participant",
+"Daniel", "Duplisea", "DFO Québec", "Participant",
+"Elisabeth", "Van Beveren", "DFO Québec", "Participant",
+"Fatemeh", "Hatefi", "", "Participant",
+"Hannah", "Munro", "", "Participant",
+"Jordan", "Ouellette-Plante", "DFO Québec", "Participant",
+"Kevin", "Hedges", "", "Participant",
+"Kotaro", "Ono", "", "Participant",
+"Kyle", "Gillespie", "", "Participant",
+"Laura", "Bianucci", "", "Participant",
+"Liza", "Tsitrin", "", "Participant",
+"Marie-Julie", "Roux", "DFO Québec", "Participant",
+"Mark", "Billard", "", "Participant",
+"Mathieu", "Boudreau", "DFO Québec", "Participant",
+"Meghan", "Burton", "DFO Pacific", "Participant",
+"Michelle", "Fitzsimmons", "", "Participant",
+"Michelle", "Greenlaw", "DFO Gulf", "Participant",
+"Philina", "English", "DFO Pacific", "Participant",
+"Quang", "Huynh", "Blue Matter Science", "Participant",
+"Rajeev", "Kumar", "", "Participant",
+"Ross", "Tallman", "", "Participant",
+"Shani", "Rousseau", "", "Participant",
+"Shannon", "Obradovich", "DFO Pacific", "Participant",
+"Stephane", "Gauthier", "DFO Pacific", "Participant",
+"Tom", "Bermingham", "", "Participant",
+"Wayne", "Hajas", "DFO Pacific", "Participant",
+"Xinhua", "Zhu", "", "Participant"
+)
+p %>% arrange(last) %>% 
+  mutate(name = paste(first, last)) %>% 
+  select(-first, -last, -role) %>%
+  select(name, affil) %>% 
+  knitr::kable(col.names = c("Name", "Affiliatoin"), booktabs = TRUE, linesep = "")
+```
+
+# Background
+
+# Methods and results
+
+# Discussion
+
+# Next steps
+
+# References
+
+
+# The challenge
+
+**General question:** can geostatistical models solve common survey problems?
+
+**Specific focus topics:**
+
+A)  Including covariates. Does including a covariate (depth) increase precision, estimate the right depth relationship, and maintain an unbiased index with greater precision compared to not including any covariates (or any one of these questions)? Are there scenarios where that is or isn't the case?
+
+B)  Changes to spatial coverage from year to year. E.g. If part of the survey (e.g. multiple strata, half the survey area) is missed in some years, can the model recover the index? This includes "hole" filling.
+
+<!-- C)  Does using an AR1 spatiotemporal field (without factor levels for years) constrain the model too much and result in hyperstability? -->
+
+<!-- D)  If the catchability of a survey changed along the time series, say the gear was changed and there was one year of calibration overlap, could the model estimate the catchability (q) offset and provide unbiased estimates of the population available to the contemporary survey as if those gear were used the whole time? -->
+
+E)  If two surveys with different catchabilities are conducted in parallel at neighbouring divisions, could a model 'stitch' these surveys together to provide a unified estimate of the population?
+
+<!-- F)  Are there survey designs that result in the model-based index being more or less precise than the design based index? -->
+
+<!-- G)  Can we obtain an index at age using a geostatistical model? -->
+
+# Other questions
+
+-   Does using an AR1 spatiotemporal field (without factor levels for years) constrain the model too much and result in hyperstability?
+-   Are there survey designs that result in the model-based index being more or less precise than the design based index?
+-   If the catchability of a survey changed along the time series, say the gear was changed and there was one year of calibration overlap, could the model estimate the catchability (q) offset and provide unbiased estimates of the population available to the contemporary survey as if those gear were used the whole time?
+-   Can we obtain an index at age using a geostatistical model?
+-   Does the model sufficiently account for spatial correlation and/or is it sufficiently free of assumption so as not to be affected by the stratified sampling design of the survey?
+
+# Approach taken
+
+1.  Simulate a population and a survey and calculate design-based indices using SimSurvey
+2.  Fit a geostistical model to the simulated survey data using sdmTMB to obtain model-based indices
+3.  Iterate the population simulation and data analysis
+4.  Visually assess the bias and precision of the estimates
+5.  Modify the simulation settings (e.g., impose partial survey coverage) and repeat setps 1-4
+
+# Key points discussed
+
+-   The capabilities of SimSurvey and sdmTMB
+-   Tractable topics to explore
+-   Sub-group specific discussions of the focus topics listed in **The challenge** slide
+
+# Successes
+
+-   Prototype code to help kickstart subgroup explorations
+-   Preliminary results from each subgroup
+
+# Challenges
+
+-   Time flies
+-   Virtual setting
+-   Black-box effect - reverse engineering what is going on
+-   Computational demands
+-   Visualizing high-dimensional problem / summarizing results
+-   Free-form structure - "This bog is thick and easy to get lost in"
+
+# How far did we get?
+
+-   Lots of brainstorming, some preliminary results
+
+# Next steps
+
+-   Use the tools to gain comfortable
+-   Future collaboration to explore important questions
+
+# Expected outcomes
+
+-   Repo with code
+-   Some familiarity with these tools
+-   Ideas for additional functionality of SimSurvey
+-   Sense of potential real-world applications - need more time
+-   Lots of interesting questions raised and could be explored
+
+
+# Preliminary results from sub-groups
+
+
+# Covariates - Philina
+
+- simulating relationships with depth benefit from realistic depth profiles
+
+```{r, echo = FALSE}
+knitr::include_graphics(here("report/real-depth-profile.png"))
+```
+
+# Covariates - Philina
+
+- sdmTMB was able to resolve the underlying depth preference (red = true, black = model prediction)
+
+```{r, echo = FALSE}
+knitr::include_graphics(here("report/depth-estimate.png"))
+```
+
+# Covariates - Philina
+
+- adding depth can narrow uncertainty in model based estimates (at least when data available to model is very limited)
+
+```{r, echo = FALSE}
+knitr::include_graphics(here("report/covariate-sims-w-real-depth.png"))
+```
+
+# Stitching - Quang
+
+- 1: Surveys A and B each sample different areas in each year
+- 2: Surveys A and B each sample different areas in alternate years
+- 3: Surveys A and B each sample different areas in alternate years, both sample their respective areas in terminal year
+- 4: Same as #3, also compare to situation where survey A samples entire stock area at half the set density (same effort)
+- 5: Surveys A and B each sample different areas in alternate years, both sample the same area in terminal year
+- 6: Same vessel samples different areas in alternating years, one year, both surveys sample both areas in terminal year
+
+- Catchability differ between surveys
+
+# Alternating surveys in alternate years with a calibrating year (Q3-4)
+
+![](../stitching/stitched_design.png)
+
+# Alternating surveys in alternate years (Q2)
+
+![](../stitching/stitch_iter_Q2.png)
+
+# Alternating surveys in alternate years (Q2)
+
+![](../stitching/stitch_iter_with_errorbar_Q2.png)
+
+
+# Alternating surveys in alternate years with a calibrating year, compare to global survey (Q4)
+
+![](../stitching/stitch_iter_Q4.png)
+
+# Alternating surveys in alternate years with a calibrating year, compare to global survey (Q4)
+
+![](../stitching/stitch_iter_with_errorbar_Q4.png)
+
+
+<!-- insert notes and plots from stitching sub-group -->
+
+
+# Coverage - Kotaro
+
+<!-- insert notes and plots from Kotaro's coverage sub-group -->
+
+
+# Covariates - Dan
+
+<!-- insert notes and plots from Dan's covariates sub-group -->
+
+
