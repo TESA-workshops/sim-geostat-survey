@@ -4,7 +4,7 @@ library(SimSurvey)
 library(sdmTMB)
 future::plan(future::multisession) # for the furrr package; or `plan(sequential)`
 
-sim_and_fit <- function(iter) {
+sim_and_fit <- function(iter, plot = FALSE) {
   set.seed(iter * 283028)
   sim <- sim_abundance(ages = seq(1, 10), years = seq(1, 10)) %>%
     sim_distribution(
@@ -25,13 +25,17 @@ sim_and_fit <- function(iter) {
   grid_dat$offset <- mean(dat$offset)
 
   dat_filtered <- dplyr::filter(dat, !(x > 0 & y < 0 & year %in% c(2, 4, 8)))
-  # ggplot(dat_filtered, aes(x, y)) + geom_point() + facet_wrap(~year)
+  if (plot) {
+    g <- ggplot(dat_filtered, aes(x, y)) + geom_point() + facet_wrap(~year) +
+      theme_bw()
+    ggsave("report/coverage-sample.png", width = 7, height = 5)
+  }
 
   mesh <- sdmTMB::make_mesh(dat_filtered, xy_cols = c("x", "y"), cutoff = 20)
   fit <- sdmTMB(N ~ 0 + as.factor(year) + offset,
     data = dat_filtered,
-    family = nbinom2(link = "log"), spde = mesh,
-    include_spatial = TRUE, time = "year"
+    family = nbinom2(link = "log"), mesh = mesh,
+    spatial = TRUE, time = "year"
   )
 
   pred <- predict(fit, newdata = grid_dat, return_tmb_object = TRUE, area = 100)
@@ -55,7 +59,7 @@ sim_and_fit <- function(iter) {
   #   facet_wrap(~year) +
   #   scale_fill_viridis_c()
 
-  index <- get_index(pred)
+  index <- get_index(pred, bias_correct = TRUE)
 
   true_abund <- tibble(year = unique(dat$year), N = as.numeric(colSums(survey$I))) %>%
     mutate(type = "True")
@@ -72,6 +76,7 @@ sim_and_fit <- function(iter) {
 # result <- purrr::map_dfr(seq_len(8), sim_and_fit)
 
 # parallel:
+set.seed(123)
 result <- furrr::future_map_dfr(seq_len(8), sim_and_fit,
   .options = furrr::furrr_options(seed = TRUE)
 )
@@ -90,6 +95,7 @@ result_scaled <- result %>%
   arrange(type)
 
 result_scaled %>%
+  filter(iter %in% 1:6) %>%
   ggplot(aes(year, N_scaled, group = type)) +
   geom_line(aes(colour = type, size = type)) +
   geom_ribbon(aes(ymin = lwr_scaled, ymax = upr_scaled, fill = type), alpha = 0.3) +
@@ -98,8 +104,11 @@ result_scaled %>%
   scale_fill_manual(values = c("Model-based" = "grey30", "Design-based" = "steelblue", "True" = "red")) +
   scale_size_manual(values = c("Model-based" = 0.5, "Design-based" = 0.5, "True" = 1)) +
   facet_wrap(~iter, scales = "free_y") +
-  theme_minimal() +
-  theme(legend.position = "bottom")
+  theme_bw() +
+  theme(legend.position = "bottom") +
+  scale_x_continuous(breaks = seq(1, 10)) +
+  geom_vline(xintercept = c(2, 4, 8), lty = 2, col = "grey30")
+ggsave("report/reduced-coverage-index.png", width = 8, height = 5)
 
 summary_stats <- result_scaled %>%
   group_by(year, iter) %>%

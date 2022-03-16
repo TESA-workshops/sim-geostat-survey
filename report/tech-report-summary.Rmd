@@ -11,6 +11,16 @@ output:
 ```{r setup, include = FALSE, message=FALSE, warning=FALSE, error=FALSE}
 library(dplyr)
 library(here)
+options(tinytex.verbose = TRUE)
+knitr::opts_chunk$set(
+  echo = FALSE,
+  message = FALSE,
+  warning = FALSE,
+  collapse = TRUE,
+  comment = "#>",
+  out.width = "4.2in",
+  fig.align='center'
+)
 ```
 
 # Participants
@@ -53,7 +63,7 @@ p %>% arrange(last) %>%
   mutate(name = paste(first, last)) %>% 
   select(-first, -last, -role) %>%
   select(name, affil) %>% 
-  knitr::kable(col.names = c("Name", "Affiliatoin"), booktabs = TRUE, linesep = "")
+  knitr::kable(col.names = c("Name", "Affiliation"), booktabs = TRUE, linesep = "")
 ```
 
 # Background
@@ -69,140 +79,73 @@ In this breakout group, we proposed joining two major ongoing software developme
 
 1. Does including a covariate (e.g., depth) increase precision, estimate the right depth relationship, and maintain an unbiased index with greater precision compared to not including any covariates? Are there scenarios where that is or isn't the case?
 
-2. Changes to spatial coverage from year to year: If part of the survey (e.g. multiple strata, half the survey area) is missed in some years, can the model recover the index?
+2. Changes to spatial coverage from year to year: If part of the survey (e.g. multiple strata, half the survey area) is missed in some years, can the model recover the index and with appropriate confidence intervals?
 
 3. If two surveys with different catchabilities are conducted in parallel at neighbouring regions, could a model "stitch" these surveys together to provide a unified estimate of the population?
 
 
 # Methods and results
 
-The general approach taken was to simulate survey data using SimSurvey, fit models to those data using sdmTMB, and then compare the estimated indexes to the known true values over multiple stochastic iterations and under various conditions.
+The general approach taken across subgroups:
 
-Specifically:
+1. Simulate a population and survey and calculate design-based indices using SimSurvey.
+2. Degrade the survey if needed (e.g., dropping some spatial coverage).
+3. Fit a geostistical spatiotemporal model to the simulated survey data using sdmTMB to obtain model-based indices.
+4. Iterate over multiple stochastic realizations of the population and survey and model fitting.
+5. Visually and possibly quantitatively assess the bias and precision of the estimates compared to the known truth.
+6. Modify the simulation settings (e.g., impose partial survey coverage or add observation error) and repeat steps 1--5.
 
-1. Simulate a population and a survey and calculate design-based indices using SimSurvey.
-2. Fit a geostistical model to the simulated survey data using sdmTMB to obtain model-based indices.
-3. Iterate the population simulation and data analysis.
-4. Visually assess the bias and precision of the estimates.
-5. Modify the simulation settings (e.g., impose partial survey coverage) and repeat steps 1--4.
+The overall group split into four subgroups. Two groups investigated question one (covariate effects), one group investigated question two (reduced survey coverage), and one group investigated question three ("stitching" surveys with different catch abilities).
 
-
+The workshop leaders provided prototype code to help kickstart the subgroup explorations.
 
 # Discussion
 
-# Next steps
+Challenges included the limited amount of time for the project, the virtual setting, challenges for users working with packages that they were not yet familiar with, computational demands give in the limited time, visualizing high dimensional problems and summarizing results.
+
+The groups spent considerable time brainstorming and most groups achieved some preliminary results.
+
+The expected outcomes included a GitHub repository with code to  work through basic versions of the questions proposed, having the participants gained some familiarity with the tools, obtaining ideas for additional functionality in SimSurvey, and brainstorming interesting questions that could be explored in the future.
 
 # References
 
-
-# Key points discussed
-
--   The capabilities of SimSurvey and sdmTMB
--   Tractable topics to explore
--   Sub-group specific discussions of the focus topics listed in **The challenge** slide
-
-# Successes
-
--   Prototype code to help kickstart subgroup explorations
--   Preliminary results from each subgroup
-
-# Challenges
-
--   Time flies
--   Virtual setting
--   Black-box effect - reverse engineering what is going on
--   Computational demands
--   Visualizing high-dimensional problem / summarizing results
--   Free-form structure - "This bog is thick and easy to get lost in"
-
-# How far did we get?
-
--   Lots of brainstorming, some preliminary results
-
-# Next steps
-
--   Use the tools to gain comfortable
--   Future collaboration to explore important questions
-
-# Expected outcomes
-
--   Repo with code
--   Some familiarity with these tools
--   Ideas for additional functionality of SimSurvey
--   Sense of potential real-world applications - need more time
--   Lots of interesting questions raised and could be explored
-
-
 # Preliminary results from sub-groups
 
+One of the covariate subgroups (subgroup coding led by P. English) found that sdmTMB was able to resolve the underlying depth preference as simulated in SimSurvey reasonably well (Fig. \@ref(fig:depth1)).
+In their simulation testing, they found that adding a depth covariate reduced population index uncertainty when compared to a model that did not have a depth covariate (Fig. \@ref(fig:depth3)).
 
-# Covariates - Philina
-
-- simulating relationships with depth benefit from realistic depth profiles
-
-```{r, echo = FALSE}
-knitr::include_graphics(here("report/real-depth-profile.png"))
+```{r depth1, echo = FALSE, fig.cap="(Left) Simulated depth within the SimSurvey population simulation. (Right) Known depth relationship (dashed red) and estimated depth relationship from the geostatistical model (black and grey).", out.width=c("2.72in", "3in"), fig.show='hold'}
+knitr::include_graphics(c(here("report/real-depth-profile.png"), here("report/depth-estimate.png")))
 ```
 
-# Covariates - Philina
-
-- sdmTMB was able to resolve the underlying depth preference (red = true, black = model prediction)
-
-```{r, echo = FALSE}
-knitr::include_graphics(here("report/depth-estimate.png"))
-```
-
-# Covariates - Philina
-
-- adding depth can narrow uncertainty in model based estimates (at least when data available to model is very limited)
-
-```{r, echo = FALSE}
+```{r depth3, echo = FALSE, fig.cap="Population indexes with and without a depth covariate. True index is indicated with a dotted red line, design-based estimate is shown witha  green line, model-based (without depth) is indicated by a blue line and ribbon, model-based (with depth) is indicated by a purple line and ribbon. Lines indicate means and ribbons indicate 95\\% confidence intervals (CIs)."}
 knitr::include_graphics(here("report/covariate-sims-w-real-depth.png"))
 ```
 
-# Stitching - Quang
+The subgroup working on joining or stitching nearby surveys (subgroup coding led by Q. Huynh) designed a series of experiments to evaluate the effects of sampling from two possible areas in various years. Here, we focus on two scenarios: (Q2) surveys A and B have different catchabilities and each sample different areas in alternate years and (Q4) same as Q2 but the terminal year includes samples from both surveys A and B (Fig. \@ref(fig:cal-year)). Using a geostatistical model with spatial random fields and independent spatiotemporal random fields for each year, the subgroup found that including the calibration year (Q4) greatly improved the ability to recover the index (Fig. \@ref(fig:stitchQ2) vs. Fig. \@ref(fig:stitchQ4)). Subsequent work has suggested that other structural forms to the random fields can improve stitching performance further.
 
-- 1: Surveys A and B each sample different areas in each year
-- 2: Surveys A and B each sample different areas in alternate years
-- 3: Surveys A and B each sample different areas in alternate years, both sample their respective areas in terminal year
-- 4: Same as #3, also compare to situation where survey A samples entire stock area at half the set density (same effort)
-- 5: Surveys A and B each sample different areas in alternate years, both sample the same area in terminal year
-- 6: Same vessel samples different areas in alternating years, one year, both surveys sample both areas in terminal year
+```{r cal-year, echo = FALSE, fig.cap="Example of alternating surveys in alternate years with a calibrating year (Q4)."}
+knitr::include_graphics(here("stitching/stitched_design.png"))
+```
 
-- Catchability differ between surveys
+```{r stitchQ2, echo = FALSE, fig.cap="Four iterations (columns) of calculating population indexes from two alternating surveys with different catchabilities in alternate years and no calibration year (Q2)."}
+knitr::include_graphics(here("stitching/stitch_iter_Q2.png"))
+```
 
-# Alternating surveys in alternate years with a calibrating year (Q3-4)
+```{r stitchQ4, echo = FALSE, fig.cap="Four iterations (columns) of calculating population indexes from two alternating surveys in alternate years \\textbf{with} a calibrating year (Q4). The `global model' (red) does not estimate a separate catchability for each survey whereas the `stitch A/B' model does."}
+knitr::include_graphics(here("stitching/stitch_iter_Q4.png"))
+```
 
-![](../stitching/stitched_design.png)
+The subgroup working on the effects of reduced coverage on survey indices spent time developing a full simulation experiment but ran out of time running the models to have results before the end of the workshop.
+In place of those results, we have included output from the prototype code.
+In this example, a survey was run for 10 years but the survey could not cover a quarter of the survey domain in years 2, 4, and 8 (Fig. \@ref(fig:coverage-exp)).
+The fitted spatiotemporal model attempted to spatially extrapolate over the missing area and generally produced reasonable estimates and confidence intervals (Fig. \@ref(fig:coverage)).
+The confidence intervals on the missing years were often larger given the reduced spatial coverage (Fig. \@ref(fig:coverage)).
 
-# Alternating surveys in alternate years (Q2)
+```{r coverage-exp, echo = FALSE, fig.cap="Simulation experiment in which the survey was excluded from one quarter of the survey domain in years 2, 4, and 8. Dots represent survey set locations in space and panels represent years."}
+knitr::include_graphics(here("report/coverage-sample.png"))
+```
 
-![](../stitching/stitch_iter_Q2.png)
-
-# Alternating surveys in alternate years (Q2)
-
-![](../stitching/stitch_iter_with_errorbar_Q2.png)
-
-
-# Alternating surveys in alternate years with a calibrating year, compare to global survey (Q4)
-
-![](../stitching/stitch_iter_Q4.png)
-
-# Alternating surveys in alternate years with a calibrating year, compare to global survey (Q4)
-
-![](../stitching/stitch_iter_with_errorbar_Q4.png)
-
-
-<!-- insert notes and plots from stitching sub-group -->
-
-
-# Coverage - Kotaro
-
-<!-- insert notes and plots from Kotaro's coverage sub-group -->
-
-
-# Covariates - Dan
-
-<!-- insert notes and plots from Dan's covariates sub-group -->
-
-
+```{r coverage, echo = FALSE, fig.cap="Resulting indexes calculated from the survey with reduced survey coverage in three years. Red lines represent the true known index value. Blue line represents the design-based index calculated for the entire survey domain (i.e., seeing the missing data). Black line and shaded area represents the geostatistical model-based index and confidence interval. The dashed vertical lines indicate years with missing data."}
+knitr::include_graphics(here("report/reduced-coverage-index.png"))
+```
