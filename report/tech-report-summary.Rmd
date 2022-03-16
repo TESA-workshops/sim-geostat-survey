@@ -6,6 +6,9 @@ output:
     number_sections: false
     fig_caption: true
     highlight: "monochrome"
+editor_options: 
+  markdown: 
+    wrap: sentence
 ---
 
 ```{r setup, include = FALSE, message=FALSE, warning=FALSE, error=FALSE}
@@ -68,33 +71,36 @@ p %>% arrange(last) %>%
 
 # Background
 
-There has been a recent movement towards geostatistical model-based calibration of survey data to assess trends in species abundance and evaluate distribution shifts.
-Such a spatial approach can increase precision compared to design-based approaches and has the potential to account for common survey problems (e.g., gear changes, partial coverage) in calculating indices used in stock assessment.
-Furthermore, geostatistical models provide a framework for integrating data from contiguous surveys, meeting an urgent need to track species across survey domains and geopolitical borders as changing ocean conditions cause distributional shifts.
+There has been a recent movement towards geostatistical model-based calibration of survey data to assess trends in species abundance and evaluate distribution shifts^1--5^.
+Such a spatial approach can increase precision compared to design-based approaches^4,5^ and has the potential to account for common survey problems (e.g., gear changes, partial coverage) in calculating indices used in stock assessment.
+Furthermore, geostatistical models provide a framework for integrating data from contiguous surveys, meeting an urgent need to track species across survey domains and geopolitical borders as changing ocean conditions cause distributional shifts^3^.
 However, skepticism about such approaches remains.
-Simulation testing has typically been under ideal conditions (e.g., self-testing with the same underlying model) or non-existent.
+Simulation testing has typically been under ideal conditions (e.g., self-testing with the same underlying model^3,6^) or non-existent.
 Complications exist such as differing length-selectivity and spatiotemporal coverage.
 
-In this breakout group, we proposed joining two major ongoing software development efforts at DFO---one a simulation tool (SimSurvey) and one a model fitting tool (sdmTMB)---to use simulation testing to address several questions around the use of geostatistical model-based calibration of survey data. Specifically, we proposed four subgroups to address the following questions:
+In this breakout group, we proposed joining two major ongoing software development efforts at DFO---one a simulation tool (SimSurvey)^7^ and one a model fitting tool (sdmTMB)^1,8^ --- to use simulation testing to address several questions around the use of geostatistical model-based calibration of survey data.
+Specifically, we proposed four subgroups to address the following questions:
 
-1. Does including a covariate (e.g., depth) increase precision, estimate the right depth relationship, and maintain an unbiased index with greater precision compared to not including any covariates? Are there scenarios where that is or isn't the case?
+1.  Does including a covariate (e.g., depth) increase precision, estimate the right depth relationship, and maintain an unbiased index with greater precision compared to not including any covariates?
+    Are there scenarios where that is or isn't the case?
 
-2. Changes to spatial coverage from year to year: If part of the survey (e.g. multiple strata, half the survey area) is missed in some years, can the model recover the index and with appropriate confidence intervals?
+2.  Changes to spatial coverage from year to year: If part of the survey (e.g. multiple strata, half the survey area) is missed in some years, can the model recover the index and with appropriate confidence intervals?
 
-3. If two surveys with different catchabilities are conducted in parallel at neighbouring regions, could a model "stitch" these surveys together to provide a unified estimate of the population?
+3.  If two surveys with different catchabilities are conducted in parallel at neighbouring regions, could a model "stitch" these surveys together to provide a unified estimate of the population?
 
 # Methods
 
 The general approach taken across subgroups:
 
-1. Simulate a population and survey and calculate design-based indices using SimSurvey.
-2. Degrade the survey if needed (e.g., dropping some spatial coverage).
-3. Fit a geostistical spatiotemporal model to the simulated survey data using sdmTMB to obtain model-based indices.
-4. Iterate over multiple stochastic realizations of the population and survey and model fitting.
-5. Visually and possibly quantitatively assess the bias and precision of the estimates compared to the known truth.
-6. Modify the simulation settings (e.g., impose partial survey coverage or add observation error) and repeat steps 1--5.
+1.  Simulate a population and survey and calculate design-based indices using SimSurvey.
+2.  Degrade the survey if needed (e.g., dropping some spatial coverage).
+3.  Fit a geostistical spatiotemporal model to the simulated survey data using sdmTMB to obtain model-based indices.
+4.  Iterate over multiple stochastic realizations of the population and survey and model fitting.
+5.  Visually and possibly quantitatively assess the bias and precision of the estimates compared to the known truth.
+6.  Modify the simulation settings (e.g., impose partial survey coverage or add observation error) and repeat steps 1--5.
 
-The overall group split into four subgroups. Two groups investigated question one (covariate effects), one group investigated question two (reduced survey coverage), and one group investigated question three ("stitching" surveys with different catch abilities).
+The overall group split into four subgroups.
+Two groups investigated question one (covariate effects), one group investigated question two (reduced survey coverage), and one group investigated question three ("stitching" surveys with different catch abilities).
 The workshop leaders provided prototype code to help kickstart the subgroup explorations.
 
 # Preliminary results from sub-groups
@@ -110,7 +116,11 @@ knitr::include_graphics(c(here("report/real-depth-profile.png"), here("report/de
 knitr::include_graphics(here("report/covariate-sims-w-real-depth.png"))
 ```
 
-The subgroup working on joining or stitching nearby surveys (subgroup coding led by Q. Huynh) designed a series of experiments to evaluate the effects of sampling from two possible areas in various years. Here, we focus on two scenarios: (Q2) surveys A and B have different catchabilities and each sample different areas in alternate years and (Q4) same as Q2 but the terminal year includes samples from both surveys A and B (Fig. \@ref(fig:cal-year)). Using a geostatistical model with spatial random fields and independent spatiotemporal random fields for each year, the subgroup found that including the calibration year (Q4) greatly improved the ability to recover the index (Fig. \@ref(fig:stitchQ2) vs. Fig. \@ref(fig:stitchQ4)). Subsequent work has suggested that other structural forms to the random fields can improve stitching performance further.
+The subgroup working on joining or stitching nearby surveys (subgroup coding led by Q. Huynh) designed a series of experiments to evaluate the effects of sampling from two possible areas in various years.
+Here, we focus on two scenarios: (Q2) surveys A and B have different catchabilities and each sample different areas in alternate years and (Q4) same as Q2 but the terminal year includes samples from both surveys A and B (Fig. \@ref(fig:cal-year)).
+Using a geostatistical model with spatial random fields and independent spatiotemporal random fields for each year, the subgroup found that including the calibration year (Q4) greatly improved the ability to recover the index (Fig. \@ref(fig:stitchQ2) vs. Fig.
+\@ref(fig:stitchQ4)).
+Subsequent work has suggested that other structural forms to the random fields can improve stitching performance further.
 
 ```{r cal-year, echo = FALSE, fig.cap="Example of alternating surveys in alternate years with a calibrating year (Q4)."}
 knitr::include_graphics(here("stitching/stitched_design.png"))
@@ -142,10 +152,20 @@ knitr::include_graphics(here("report/reduced-coverage-index.png"))
 
 # Discussion
 
-Challenges included the limited amount of time for the project, the virtual setting, challenges for users working with packages that they were not yet familiar with, computational demands give in the limited time, visualizing high dimensional problems and summarizing results. The groups spent considerable time brainstorming and most groups achieved some preliminary results.
+Challenges included the limited amount of time for the project, the virtual setting, challenges for users working with packages that they were not yet familiar with, computational demands give in the limited time, visualizing high dimensional problems and summarizing results.
+The groups spent considerable time brainstorming and most groups achieved some preliminary results.
 
-The expected outcomes included a GitHub repository with code to  work through basic versions of the questions proposed, having the participants gained some familiarity with the tools, obtaining ideas for additional functionality in SimSurvey, and brainstorming interesting questions that could be explored in the future.
+The expected outcomes included a GitHub repository with code to work through basic versions of the questions proposed, having the participants gained some familiarity with the tools, obtaining ideas for additional functionality in SimSurvey, and brainstorming interesting questions that could be explored in the future.
 
 # Next steps
 
 # References
+
+1.  Anderson, S. C., Keppel, E. A. & Edwards, A. M. A reproducible data synopsis for over 100 species of British Columbia groundfish. *DFO Can. Sci. Advis. Sec. Res. Doc.* **2019/041**, vii + 321 p (2019).
+2.  Shelton, A. O., Thorson, J. T., Ward, E. J. & Feist, B. E. Spatial semiparametric models improve estimates of species abundance and distribution. *Can. J. Fish. Aquat. Sci.* **71**, 1655--1666 (2014).
+3.  Maureaud, A. A. *et al.* Are we ready to track climate-driven shifts in marine species across international boundaries? - A global survey of scientific bottom trawl data. *Glob. Change Biol.* **27**, 220--236 (2021).
+4.  Grüss, A. & Thorson, J. T. Developing spatio-temporal models using multiple data types for evaluating population trends and habitat usage. *ICES J. Mar. Sci.* **76**, 1748--1761 (2019).
+5.  Thorson, J. T., Shelton, A. O., Ward, E. J. & Skaug, H. J. Geostatistical delta-generalized linear mixed models improve precision for estimated abundance indices for West Coast groundfishes. *ICES J. Mar. Sci. J. Cons.* **72**, 1297--1310 (2015).
+6.  Haggarty, D. R. *et al.* Evaluation of potential rebuilding strategies for Inside Yelloweye Rockﬁsh (*Sebastes ruberrimus*) in British Columbia. *DFO Can. Sci. Advis. Sec. Res. Doc.* **In press**, (2020).
+7.  Regular, P. M. *et al.* SimSurvey: An R package for comparing the design and analysis of surveys by simulating spatially-correlated populations. *PLOS ONE* **15**, e0232822 (2020).
+8.  Anderson, S. C., Ward, E. J., Barnett, L. A. K. & English, P. A. *sdmTMB: Spatiotemporal species distribution GLMMs with 'TMB'*. (2021). <https://github.com/pbs-assess/sdmTMB>
