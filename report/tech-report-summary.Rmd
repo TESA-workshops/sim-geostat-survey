@@ -134,7 +134,7 @@ The confidence intervals on the missing years were often larger given the reduce
 knitr::include_graphics(here("report/coverage-sample.png"))
 ```
 
-```{r coverage, echo = FALSE, fig.cap="Resulting indexes calculated with reduced survey coverage in years 2, 4, and 8. Red lines represent the true known index value. Blue line represents the design-based index calculated for the entire survey domain (i.e., seeing the missing data). Black line and shaded area represents the geostatistical model-based index and confidence interval. The dashed vertical lines indicate years with missing data."}
+```{r coverage, echo = FALSE, fig.cap="Resulting indexes calculated with reduced survey coverage in years 2, 4, and 8. Panels represent 6 random iterations. Red lines represent the true known index value. Blue line represents the design-based index calculated for the entire survey domain (i.e., seeing the missing data). Black line and shaded area represents the geostatistical model-based index and confidence interval. The dashed vertical lines indicate years with missing data."}
 knitr::include_graphics(here("report/reduced-coverage-index.png"))
 ```
 
