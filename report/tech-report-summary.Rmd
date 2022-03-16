@@ -83,8 +83,7 @@ In this breakout group, we proposed joining two major ongoing software developme
 
 3. If two surveys with different catchabilities are conducted in parallel at neighbouring regions, could a model "stitch" these surveys together to provide a unified estimate of the population?
 
-
-# Methods and results
+# Methods
 
 The general approach taken across subgroups:
 
@@ -96,18 +95,7 @@ The general approach taken across subgroups:
 6. Modify the simulation settings (e.g., impose partial survey coverage or add observation error) and repeat steps 1--5.
 
 The overall group split into four subgroups. Two groups investigated question one (covariate effects), one group investigated question two (reduced survey coverage), and one group investigated question three ("stitching" surveys with different catch abilities).
-
 The workshop leaders provided prototype code to help kickstart the subgroup explorations.
-
-# Discussion
-
-Challenges included the limited amount of time for the project, the virtual setting, challenges for users working with packages that they were not yet familiar with, computational demands give in the limited time, visualizing high dimensional problems and summarizing results.
-
-The groups spent considerable time brainstorming and most groups achieved some preliminary results.
-
-The expected outcomes included a GitHub repository with code to  work through basic versions of the questions proposed, having the participants gained some familiarity with the tools, obtaining ideas for additional functionality in SimSurvey, and brainstorming interesting questions that could be explored in the future.
-
-# References
 
 # Preliminary results from sub-groups
 
@@ -146,6 +134,18 @@ The confidence intervals on the missing years were often larger given the reduce
 knitr::include_graphics(here("report/coverage-sample.png"))
 ```
 
-```{r coverage, echo = FALSE, fig.cap="Resulting indexes calculated from the survey with reduced survey coverage in three years. Red lines represent the true known index value. Blue line represents the design-based index calculated for the entire survey domain (i.e., seeing the missing data). Black line and shaded area represents the geostatistical model-based index and confidence interval. The dashed vertical lines indicate years with missing data."}
+```{r coverage, echo = FALSE, fig.cap="Resulting indexes calculated with reduced survey coverage in years 2, 4, and 8. Red lines represent the true known index value. Blue line represents the design-based index calculated for the entire survey domain (i.e., seeing the missing data). Black line and shaded area represents the geostatistical model-based index and confidence interval. The dashed vertical lines indicate years with missing data."}
 knitr::include_graphics(here("report/reduced-coverage-index.png"))
 ```
+
+\clearpage
+
+# Discussion
+
+Challenges included the limited amount of time for the project, the virtual setting, challenges for users working with packages that they were not yet familiar with, computational demands give in the limited time, visualizing high dimensional problems and summarizing results. The groups spent considerable time brainstorming and most groups achieved some preliminary results.
+
+The expected outcomes included a GitHub repository with code to  work through basic versions of the questions proposed, having the participants gained some familiarity with the tools, obtaining ideas for additional functionality in SimSurvey, and brainstorming interesting questions that could be explored in the future.
+
+# Next steps
+
+# References
