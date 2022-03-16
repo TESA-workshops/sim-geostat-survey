@@ -6,6 +6,8 @@ output:
     number_sections: false
     fig_caption: true
     highlight: "monochrome"
+urlcolor: blue
+linkcolor: blue
 editor_options: 
   markdown: 
     wrap: sentence
@@ -77,7 +79,7 @@ Furthermore, geostatistical models provide a framework for integrating data from
 However, skepticism about such approaches remains.
 Simulation testing has typically been under ideal conditions (e.g., self-testing with the same underlying model^3,6^) or non-existent, and complications exist such as differing length-selectivity and spatiotemporal coverage.
 
-For this breakout group, we proposed joining two major ongoing software development efforts at DFO---one a simulation tool (SimSurvey^7^) and one a model fitting tool (sdmTMB^1,8^)---to use simulation testing to address several questions around the use of geostatistical model-based calibration of survey data.
+For this breakout group, we proposed joining two major ongoing software development efforts at DFO---one a simulation tool ([SimSurvey](https://github.com/PaulRegular/SimSurvey)^7^) and one a model fitting tool ([sdmTMB](https://github.com/pbs-assess/sdmTMB)^1,8^)---to use simulation testing to address several questions around the use of geostatistical model-based calibration of survey data.
 Specifically, we proposed four subgroups to address the following questions:
 
 1.  Does including a covariate (e.g., depth) increase precision, estimate the right depth relationship, and maintain an unbiased index with greater precision compared to not including any covariates?
@@ -100,7 +102,8 @@ The general approach taken across subgroups:
 
 The overall group split into four subgroups.
 Two groups investigated question one (covariate effects), one group investigated question two (reduced survey coverage), and one group investigated question three ("stitching" surveys with different catch abilities).
-The workshop leaders provided prototype code to help kickstart the subgroup explorations at <https://github.com/TESA-workshops/sim-geostat-survey>.
+The workshop leaders provided prototype code to help kickstart the subgroup explorations.
+All code was developed at the breakout-group [GitHub repository](https://github.com/TESA-workshops/sim-geostat-survey).
 
 # Preliminary results from sub-groups
 
