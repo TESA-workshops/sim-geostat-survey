@@ -110,21 +110,21 @@ All code was developed at the breakout-group [GitHub repository](https://github.
 One of the covariate subgroups (subgroup coding led by P. English) found that sdmTMB was able to resolve the underlying depth preference as simulated in SimSurvey reasonably well (Fig. \@ref(fig:depth1)).
 In their simulation testing, they found that adding a depth covariate reduced population index uncertainty when compared to a model that did not have a depth covariate (Fig. \@ref(fig:depth3)).
 
-```{r depth1, echo = FALSE, fig.cap="(Left) Simulated depth within the SimSurvey population simulation. (Right) Known depth relationship (dashed red) and estimated depth relationship from the geostatistical model (black and grey).", out.width=c("2.72in", "3in"), fig.show='hold'}
+```{r depth1, echo = FALSE, fig.cap="(Left) Simulated depth within the SimSurvey population simulation. (Right) Known depth relationship (dashed red) and estimated depth relationship from the geostatistical model (black [mean] and grey [95\\% confidence interval]).", out.width=c("2.72in", "3in"), fig.show='hold'}
 knitr::include_graphics(c(here("report/real-depth-profile.png"), here("report/depth-estimate.png")))
 ```
 
-```{r depth3, echo = FALSE, fig.cap="Population indexes with and without a depth covariate. True index is indicated with a dotted red line, design-based estimate is shown witha  green line, model-based (without depth) is indicated by a blue line and ribbon, model-based (with depth) is indicated by a purple line and ribbon. Lines indicate means and ribbons indicate 95\\% confidence intervals (CIs)."}
+```{r depth3, echo = FALSE, fig.cap="Population indexes with and without a depth covariate. True index is indicated with a dotted red line, design-based estimate is shown witha  green line, model-based (without depth) is indicated by a blue line and ribbon, model-based (with depth) is indicated by a purple line and ribbon. Lines indicate means and ribbons indicate 95\\% confidence intervals. Panels represent 6 stochastic iterations."}
 knitr::include_graphics(here("report/covariate-sims-w-real-depth.png"))
 ```
 
-The subgroup working on joining or stitching nearby surveys (subgroup coding led by Q. Huynh) designed a series of experiments to evaluate the effects of sampling from two possible areas in various years.
-Here, we focus on two scenarios: (Q2) surveys A and B have different catchabilities and each sample different areas in alternate years and (Q4) same as Q2 but the terminal year includes samples from both surveys A and B (Fig. \@ref(fig:cal-year)).
+The subgroup working on joining nearby surveys (subgroup coding led by Q. Huynh) designed a series of experiments to evaluate the effects of sampling from two possible surveys in various years.
+Here, we focus on two scenarios: (Q2) surveys A and B having different catchabilities and each sampling different areas in alternate years and (Q4) same as Q2 but the terminal year including samples from both surveys A and B (Fig. \@ref(fig:cal-year)).
 Using a geostatistical model with spatial random fields and independent spatiotemporal random fields for each year, the subgroup found that including the calibration year (Q4) greatly improved the ability to recover the index (Fig. \@ref(fig:stitchQ2) vs. Fig.
 \@ref(fig:stitchQ4)).
-Subsequent work has suggested that other structural forms to the random fields can improve stitching performance further.
+Subsequent work has suggested that other structural forms to the geostatistical model can further improve stitching performance.
 
-```{r cal-year, echo = FALSE, fig.cap="Example of alternating surveys in alternate years with a calibrating year (Q4)."}
+```{r cal-year, echo = FALSE, fig.cap="Example of alternating surveys in alternate years with a calibrating year (Q4). Panels represent years, dots represent survey locations, and colours represent the two surveys."}
 knitr::include_graphics(here("stitching/stitched_design.png"))
 ```
 
@@ -190,4 +190,4 @@ We hope that the open-source nature of code behind these simulation analyses fac
 5.  Thorson, J. T., Shelton, A. O., Ward, E. J. & Skaug, H. J. Geostatistical delta-generalized linear mixed models improve precision for estimated abundance indices for West Coast groundfishes. *ICES J. Mar. Sci. J. Cons.* **72**, 1297--1310 (2015).
 6.  Haggarty, D. R. *et al.* Evaluation of potential rebuilding strategies for Inside Yelloweye Rockﬁsh (*Sebastes ruberrimus*) in British Columbia. *DFO Can. Sci. Advis. Sec. Res. Doc.* **In press**, (2020).
 7.  Regular, P. M. *et al.* SimSurvey: An R package for comparing the design and analysis of surveys by simulating spatially-correlated populations. *PLOS ONE* **15**, e0232822 (2020).
-8.  Anderson, S. C., Ward, E. J., Barnett, L. A. K. & English, P. A. *sdmTMB: Spatiotemporal species distribution GLMMs with 'TMB'*. (2021). <https://github.com/pbs-assess/sdmTMB>
+8.  Anderson, S. C., Ward, E. J., Barnett, L. A. K. & English, P. A. *sdmTMB: Spatiotemporal species distribution GLMMs with 'TMB'*. (2022). <https://github.com/pbs-assess/sdmTMB>
