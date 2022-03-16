@@ -75,10 +75,9 @@ There has been a recent movement towards geostatistical model-based calibration 
 Such a spatial approach can increase precision compared to design-based approaches^4,5^ and has the potential to account for common survey problems (e.g., gear changes, partial coverage) in calculating indices used in stock assessment.
 Furthermore, geostatistical models provide a framework for integrating data from contiguous surveys, meeting an urgent need to track species across survey domains and geopolitical borders as changing ocean conditions cause distributional shifts^3^.
 However, skepticism about such approaches remains.
-Simulation testing has typically been under ideal conditions (e.g., self-testing with the same underlying model^3,6^) or non-existent.
-Complications exist such as differing length-selectivity and spatiotemporal coverage.
+Simulation testing has typically been under ideal conditions (e.g., self-testing with the same underlying model^3,6^) or non-existent, and complications exist such as differing length-selectivity and spatiotemporal coverage.
 
-In this breakout group, we proposed joining two major ongoing software development efforts at DFO---one a simulation tool (SimSurvey)^7^ and one a model fitting tool (sdmTMB)^1,8^ --- to use simulation testing to address several questions around the use of geostatistical model-based calibration of survey data.
+For this breakout group, we proposed joining two major ongoing software development efforts at DFO---one a simulation tool (SimSurvey)^7^ and one a model fitting tool (sdmTMB)^1,8^ --- to use simulation testing to address several questions around the use of geostatistical model-based calibration of survey data.
 Specifically, we proposed four subgroups to address the following questions:
 
 1.  Does including a covariate (e.g., depth) increase precision, estimate the right depth relationship, and maintain an unbiased index with greater precision compared to not including any covariates?
@@ -152,10 +151,14 @@ knitr::include_graphics(here("report/reduced-coverage-index.png"))
 
 # Discussion
 
-Challenges included the limited amount of time for the project, the virtual setting, challenges for users working with packages that they were not yet familiar with, computational demands give in the limited time, visualizing high dimensional problems and summarizing results.
+Challenges included the limited amount of time for the project (\~ 6 hours), the virtual setting, challenges for users working with packages that they were not yet familiar with, computational demands give in the limited time, visualizing high dimensional problems and summarizing results.
 The groups spent considerable time brainstorming and most groups achieved some preliminary results.
 
 The expected outcomes included a GitHub repository with code to work through basic versions of the questions proposed, having the participants gained some familiarity with the tools, obtaining ideas for additional functionality in SimSurvey, and brainstorming interesting questions that could be explored in the future.
+
+Despite the challenges and complexity of the focal questions, preliminary results highlight the potential utility of these tools for testing the efficacy of model-based solutions to common survey problems.
+With finite funding to support large-scale surveys, the number of primary sampling units are often spread widely over a large area or some areas may only be covered in some years.
+Reduced or partial coverage introduces uncertainty and preliminary results from this workshop indicate that sdmTMB can either reduce the uncertainty by accounting for the effects of a covariate or by propagating uncertainty over missing areas, it can produce a better representation of uncertainty.
 
 # Next steps
 
