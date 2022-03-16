@@ -155,7 +155,7 @@ knitr::include_graphics(here("report/reduced-coverage-index.png"))
 
 # Discussion
 
-Challenges included the limited amount of time for the project (\~ 6 hours), the virtual setting, challenges for users working with packages that they were not yet familiar with, computational demands give in the limited time, and visualizing and summarizing high-dimensional results.
+Challenges included the limited amount of time for the project (\~ 6 hours), the virtual setting, users working with packages they were not yet familiar with, computational demands given the limited time, and visualizing and summarizing high-dimensional results.
 The groups spent considerable time brainstorming and most groups achieved some preliminary results.
 
 The expected outcomes included a GitHub repository with code to work through basic versions of the questions proposed, having the participants gained some familiarity with the tools, obtaining ideas for additional functionality in SimSurvey, and brainstorming research questions that could be explored in the future.
@@ -167,8 +167,8 @@ Reduced or partial coverage introduces uncertainty and preliminary results from 
 # Next steps
 
 With limited time, the subgroup only scratched the surface of the focal questions.
-More rigorous testing of each question is required to draw more conclusive conclusions.
-The focal questions were also a subset of a range of other knowledge gaps, such as:
+More rigorous testing of each question is required to draw more definitive conclusions.
+The focal questions were also a subset of a range of other knowledge gaps such as:
 
 -   Does using an autoregressive spatiotemporal field constrain the model too much and result in hyperstability?
 
@@ -176,10 +176,10 @@ The focal questions were also a subset of a range of other knowledge gaps, such 
 
 -   If the catchability of a survey changed along the time series, say the gear was changed and there was one year of calibration overlap, could the model estimate the catchability (q) offset and provide unbiased estimates of the population available to the contemporary survey as if those gear were used the whole time?
 
--   Does the model sufficiently account for spatial correlation and/or is it sufficiently free of assumption so as not to be affected by the stratified sampling design of the survey?
+-   Does the model sufficiently account for spatial correlation and/or is it sufficiently assumption free so as not to be affected by the stratified sampling design of the survey?
 
 Each of these questions require further research.
-Both sdmTMB and SimSurvey, as well as the repository associated with this breakout session, are made as open and accessible as possible to allow the broader community to validate, reuse and improve.
+Both [sdmTMB](https://github.com/pbs-assess/sdmTMB) and [SimSurvey](https://github.com/PaulRegular/SimSurvey), as well as the [repository](https://github.com/TESA-workshops/sim-geostat-survey) associated with this breakout session, are made as open and accessible as possible to allow the broader community to validate, reuse, and improve.
 We hope that the open-source nature of code behind these simulation analyses facilitate further collaborative research to tackle these and related research questions.
 
 # References
