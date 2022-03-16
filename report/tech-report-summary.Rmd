@@ -1,6 +1,7 @@
 ---
 title: "Filling the gaps: using simulation to test model-based solutions to survey problems"
 output:
+  # bookdown::word_document2:
   bookdown::pdf_document2:
     toc: false
     number_sections: false
@@ -183,11 +184,11 @@ We hope that the open-source nature of code behind these simulation analyses fac
 
 # References
 
-1.  Anderson, S. C., Keppel, E. A. & Edwards, A. M. A reproducible data synopsis for over 100 species of British Columbia groundfish. *DFO Can. Sci. Advis. Sec. Res. Doc.* **2019/041**, vii + 321 p (2019).
-2.  Shelton, A. O., Thorson, J. T., Ward, E. J. & Feist, B. E. Spatial semiparametric models improve estimates of species abundance and distribution. *Can. J. Fish. Aquat. Sci.* **71**, 1655--1666 (2014).
-3.  Maureaud, A. A. *et al.* Are we ready to track climate-driven shifts in marine species across international boundaries? - A global survey of scientific bottom trawl data. *Glob. Change Biol.* **27**, 220--236 (2021).
-4.  Grüss, A. & Thorson, J. T. Developing spatio-temporal models using multiple data types for evaluating population trends and habitat usage. *ICES J. Mar. Sci.* **76**, 1748--1761 (2019).
-5.  Thorson, J. T., Shelton, A. O., Ward, E. J. & Skaug, H. J. Geostatistical delta-generalized linear mixed models improve precision for estimated abundance indices for West Coast groundfishes. *ICES J. Mar. Sci. J. Cons.* **72**, 1297--1310 (2015).
-6.  Haggarty, D. R. *et al.* Evaluation of potential rebuilding strategies for Inside Yelloweye Rockﬁsh (*Sebastes ruberrimus*) in British Columbia. *DFO Can. Sci. Advis. Sec. Res. Doc.* **In press**, (2020).
-7.  Regular, P. M. *et al.* SimSurvey: An R package for comparing the design and analysis of surveys by simulating spatially-correlated populations. *PLOS ONE* **15**, e0232822 (2020).
-8.  Anderson, S. C., Ward, E. J., Barnett, L. A. K. & English, P. A. *sdmTMB: Spatiotemporal species distribution GLMMs with 'TMB'*. (2022). <https://github.com/pbs-assess/sdmTMB>
+1.  Anderson, S. C., Keppel, E. A. & Edwards, A. M. A reproducible data synopsis for over 100 species of British Columbia groundfish. 2019. *DFO Can. Sci. Advis. Sec. Res. Doc.* **2019/041**, vii + 321 p.
+2.  Shelton, A. O., Thorson, J. T., Ward, E. J. & Feist, B. E. Spatial semiparametric models improve estimates of species abundance and distribution. 2014. *Can. J. Fish. Aquat. Sci.* **71**, 1655--1666.
+3.  Maureaud, A. A. *et al.* Are we ready to track climate-driven shifts in marine species across international boundaries? A global survey of scientific bottom trawl data. 2021. *Glob. Change Biol.* **27**, 220--236.
+4.  Grüss, A. & Thorson, J. T. Developing spatio-temporal models using multiple data types for evaluating population trends and habitat usage. 2019. *ICES J. Mar. Sci.* **76**, 1748--1761.
+5.  Thorson, J. T., Shelton, A. O., Ward, E. J. & Skaug, H. J. Geostatistical delta-generalized linear mixed models improve precision for estimated abundance indices for West Coast groundfishes. 2015. *ICES J. Mar. Sci. J. Cons.* **72**, 1297--1310.
+6.  Haggarty, D. R., Huynh, Q. C., Forrest, R. E., Anderson, S. C., Bresch, M. J., Keppel, E. A. 2022. Evaluation of potential rebuilding strategies for Inside Yelloweye Rockfish (*Sebastes ruberrimus*) in British Columbia. *DFO Can. Sci. Advis. Sec. Res. Doc.* 2022/008. vi + 139 p.
+7.  Regular, P. M., Robertson, G. J, Lewis, K. P., Babyn, J., Healey, B., & Mowbray, F. SimSurvey: An R package for comparing the design and analysis of surveys by simulating spatially-correlated populations. 2020. *PLOS ONE* **15**, e0232822.
+8.  Anderson, S. C., Ward, E. J., Barnett, L. A. K. & English, P. A. 2022. *sdmTMB: Spatiotemporal species distribution GLMMs with 'TMB'*. <https://github.com/pbs-assess/sdmTMB>
