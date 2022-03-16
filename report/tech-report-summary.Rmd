@@ -8,8 +8,8 @@ output:
     highlight: "monochrome"
 urlcolor: blue
 linkcolor: blue
-editor_options: 
-  markdown: 
+editor_options:
+  markdown:
     wrap: sentence
 ---
 
@@ -64,10 +64,10 @@ p <- tribble(~first, ~last, ~affil, ~role,
 "Wayne", "Hajas", "DFO Pacific", "Participant",
 "Xinhua", "Zhu", "DFO Arctic", "Participant"
 )
-p %>% arrange(last) %>% 
-  mutate(name = paste(first, last)) %>% 
+p %>% arrange(last) %>%
+  mutate(name = paste(first, last)) %>%
   select(-first, -last, -role) %>%
-  select(name, affil) %>% 
+  select(name, affil) %>%
   knitr::kable(col.names = c("Name", "Affiliation"), booktabs = TRUE, linesep = "")
 ```
 
@@ -102,7 +102,7 @@ The general approach taken across subgroups:
 
 The overall group split into four subgroups.
 Two groups investigated question one (covariate effects), one group investigated question two (reduced survey coverage), and one group investigated question three ("stitching" surveys with different catch abilities).
-The workshop leaders provided prototype code to help kickstart the subgroup explorations.
+The workshop leaders provided prototype code to help start the subgroup explorations.
 All code was developed at the breakout-group [GitHub repository](https://github.com/TESA-workshops/sim-geostat-survey).
 
 # Preliminary results from sub-groups
@@ -161,7 +161,7 @@ The expected outcomes included a GitHub repository with code to work through bas
 
 Despite the challenges and complexity of the focal questions, preliminary results highlighted the potential utility of these tools for testing the efficacy of model-based solutions to common survey problems.
 With finite funding to support large-scale surveys, the number of primary sampling units are often spread widely over a large area or some areas may only be covered in some years.
-Reduced or partial coverage introduces uncertainty and preliminary results from this workshop indicate that sdmTMB can either reduce the uncertainty by accounting for the effects of a covariate or propogate the survey over missing areas to produce a better representation of uncertainty than ignoring the missing data.
+Reduced or partial coverage introduces uncertainty and preliminary results from this workshop indicate that sdmTMB can either reduce the uncertainty by accounting for the effects of a covariate or propagate the survey over missing areas to produce a better representation of uncertainty than ignoring the missing data.
 
 # Next steps
 
