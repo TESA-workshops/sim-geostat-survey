@@ -115,7 +115,7 @@ In their simulation testing, they found that adding a depth covariate reduced po
 knitr::include_graphics(c(here("report/real-depth-profile.png"), here("report/depth-estimate.png")))
 ```
 
-```{r depth3, echo = FALSE, fig.cap="Population indexes with and without a depth covariate. True index is indicated with a dotted red line, design-based estimate is shown witha  green line, model-based (without depth) is indicated by a blue line and ribbon, model-based (with depth) is indicated by a purple line and ribbon. Lines indicate means and ribbons indicate 95\\% confidence intervals. Panels represent 6 stochastic iterations."}
+```{r depth3, echo = FALSE, fig.cap="Population indexes with and without a depth covariate. True index is indicated with a dotted red line, design-based estimate is shown with a  green line, model-based (without depth) is indicated by a blue line and ribbon, model-based (with depth) is indicated by a purple line and ribbon. Lines indicate means and ribbons indicate 95\\% confidence intervals. Panels represent 6 stochastic iterations."}
 knitr::include_graphics(here("report/covariate-sims-w-real-depth.png"))
 ```
 
@@ -166,7 +166,7 @@ Reduced or partial coverage introduces uncertainty and preliminary results from 
 
 # Next steps
 
-With limited time, the subgroup only scratched the surface of the focal questions.
+With limited time, the subgroups only scratched the surface of the focal questions.
 More rigorous testing of each question is required to draw more definitive conclusions.
 The focal questions were also a subset of a range of other knowledge gaps such as:
 
